@@ -55,7 +55,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -121,21 +120,26 @@
             </StackPanel>
         </DockPanel>
 
-        <!-- Row 1: Mode Buttons -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12" VerticalAlignment="Center">
-            <TextBlock Text="Mode" Foreground="#7A9BBF" FontSize="12"
-                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <RadioButton Content="Live" Style="{StaticResource ZoomBtnStyle}"
-                         IsChecked="{Binding IsLiveMode, Mode=OneWay}"
-                         Command="{Binding SetModeCommand}" CommandParameter="Live"/>
-            <RadioButton Content="History" Style="{StaticResource ZoomBtnStyle}"
-                         IsChecked="{Binding IsHistoryMode, Mode=OneWay}"
-                         Command="{Binding SetModeCommand}" CommandParameter="History"/>
-        </StackPanel>
+        <!-- Row 1: Single-row mode and context toolbar -->
+        <Grid Grid.Row="1" Margin="0,0,0,16" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Row 2: Mode-specific controls -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,12">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Mode" Foreground="#7A9BBF" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <RadioButton Content="Live" Style="{StaticResource ZoomBtnStyle}"
+                             IsChecked="{Binding IsLiveMode, Mode=OneWay}"
+                             Command="{Binding SetModeCommand}" CommandParameter="Live"/>
+                <RadioButton Content="History" Style="{StaticResource ZoomBtnStyle}"
+                             IsChecked="{Binding IsHistoryMode, Mode=OneWay}"
+                             Command="{Binding SetModeCommand}" CommandParameter="History"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
                         Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="Zoom" Foreground="#7A9BBF" FontSize="12"
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -151,8 +155,8 @@
                              Command="{Binding SetZoomCommand}" CommandParameter="All"/>
             </StackPanel>
 
-            <WrapPanel VerticalAlignment="Center"
-                       Visibility="{Binding IsHistoryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                        Visibility="{Binding IsHistoryMode, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="From" Foreground="#7A9BBF" FontSize="12"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <DatePicker SelectedDate="{Binding HistoryFromDate, Mode=TwoWay}"
@@ -171,18 +175,18 @@
                         Padding="12,5" Margin="0,0,12,0" Cursor="Hand"/>
 
                 <Button Content="Export PDF" Command="{Binding ExportPdfCommand}"
-                    Padding="12,5" Margin="0,0,12,0" Cursor="Hand"/>
+                        Padding="12,5" Margin="0,0,12,0" Cursor="Hand"/>
 
                 <TextBlock Text="Use HH:mm format" Foreground="#7A9BBF" FontSize="12"
                            VerticalAlignment="Center" Margin="0,0,12,0"/>
 
                 <TextBlock Text="{Binding HistoryStatusMessage}" Foreground="#FFB347" FontSize="12"
-                           VerticalAlignment="Center" TextWrapping="Wrap"/>
-            </WrapPanel>
-        </StackPanel>
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
 
-        <!-- Row 3: Two Charts side by side -->
-        <Border Grid.Row="3"
+        <!-- Row 2: Chart -->
+        <Border Grid.Row="2"
         Grid.Column="0"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
@@ -204,8 +208,8 @@
 
         </Border>
 
-        <!-- Row 4: Horizontal scrollbar — drag left to see historical data, right = live -->
-        <Border Grid.Row="4" Background="#071020" CornerRadius="4"
+        <!-- Row 3: Horizontal scrollbar — drag left to see historical data, right = live -->
+        <Border Grid.Row="3" Background="#071020" CornerRadius="4"
                 BorderBrush="#1E3A5F" BorderThickness="1" Margin="0,8,0,0" Padding="4,4">
             <Grid>
                 <Grid.ColumnDefinitions>
