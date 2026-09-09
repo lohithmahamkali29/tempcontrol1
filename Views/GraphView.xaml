@@ -51,7 +51,9 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="16,12,16,16">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="16,12,16,16" MinHeight="700">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -190,6 +192,7 @@
         Grid.Column="0"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
+        MinHeight="420"
         Background="#071020"
         CornerRadius="8"
         BorderBrush="#1E3A5F"
@@ -230,5 +233,6 @@
                 </Border>
             </Grid>
         </Border>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
