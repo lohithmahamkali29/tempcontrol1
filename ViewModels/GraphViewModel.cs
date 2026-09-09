@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
+using TempControl.Views;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -230,6 +232,19 @@ public partial class GraphViewModel : ObservableObject
             return;
         }
 
+        var headingDialog = new ExportHeadingDialog
+        {
+            Owner = Application.Current?.MainWindow,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        if (headingDialog.ShowDialog() != true)
+            return;
+
+        var reportHeading = headingDialog.ReportHeading.Trim();
+        if (string.IsNullOrWhiteSpace(reportHeading))
+            reportHeading = "Temperature Trend Report";
+
         var dialog = new SaveFileDialog
         {
             Filter = "PDF files (*.pdf)|*.pdf",
@@ -243,7 +258,7 @@ public partial class GraphViewModel : ObservableObject
 
         try
         {
-            PdfTrendExporter.Export(dialog.FileName, records, from, to);
+            PdfTrendExporter.Export(dialog.FileName, records, from, to, reportHeading);
             HistoryStatusMessage = $"PDF exported to {dialog.FileName}";
         }
         catch (Exception ex)

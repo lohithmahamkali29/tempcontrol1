@@ -29,7 +29,8 @@ public static class PdfTrendExporter
         string filePath,
         IReadOnlyList<PdfTrendRecord> records,
         DateTime from,
-        DateTime to)
+        DateTime to,
+        string reportHeading)
     {
         using var document = SKDocument.CreatePdf(filePath);
 
@@ -44,7 +45,7 @@ public static class PdfTrendExporter
                 .ToList();
 
             using var canvas = document.BeginPage((float)PageWidth, (float)PageHeight);
-            DrawPage(canvas, pageRecords, pageStart, pageEnd, from, to);
+            DrawPage(canvas, pageRecords, pageStart, pageEnd, from, to, reportHeading);
             document.EndPage();
 
             if (pageEnd >= to)
@@ -128,9 +129,12 @@ public static class PdfTrendExporter
         DateTime pageStart,
         DateTime pageEnd,
         DateTime reportStart,
-        DateTime reportEnd)
+        DateTime reportEnd,
+        string reportHeading)
     {
         canvas.Clear(SKColors.White);
+
+        var safeHeading = string.IsNullOrWhiteSpace(reportHeading) ? "Temperature Trend Report" : reportHeading.Trim();
 
         using var titlePaint = CreateTextPaint(SKColors.Black, 20, true);
         using var detailPaint = CreateTextPaint(SKColors.DarkSlateGray, 10, false);
@@ -138,7 +142,7 @@ public static class PdfTrendExporter
         using var gridPaint = new SKPaint { Color = SKColors.LightGray, StrokeWidth = 1, IsAntialias = true };
         using var borderPaint = new SKPaint { Color = SKColors.DarkSlateGray, Style = SKPaintStyle.Stroke, StrokeWidth = 1, IsAntialias = true };
 
-        canvas.DrawText("Oven Temperature Trend", 42, 42, titlePaint);
+        canvas.DrawText(safeHeading, 42, 42, titlePaint);
         canvas.DrawText(
             $"Range: {reportStart:yyyy-MM-dd HH:mm} - {reportEnd:yyyy-MM-dd HH:mm}    Page: {pageStart:HH:mm} - {pageEnd:HH:mm}",
             42,

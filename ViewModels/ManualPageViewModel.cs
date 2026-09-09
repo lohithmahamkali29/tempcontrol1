@@ -34,6 +34,10 @@ public partial class ManualPageViewModel : ObservableObject
     [ObservableProperty] private bool _isEditMode;
 
     public bool IsNotEditMode => !IsEditMode;
+    public bool CanAttemptSupervisorEdit =>
+        _authorizationService.CurrentRole != UserRole.Operator;
+    public bool CanUseSupervisorControls =>
+        _authorizationService.CurrentRole != UserRole.Operator;
 
     partial void OnIsEditModeChanged(bool value) => OnPropertyChanged(nameof(IsNotEditMode));
 
@@ -50,6 +54,7 @@ public partial class ManualPageViewModel : ObservableObject
         DataStore = dataStore;
         _manualControlService = manualControlService;
         _authorizationService = authorizationService;
+        _authorizationService.CurrentRoleChanged += OnCurrentRoleChanged;
         PropertyChanged += OnViewModelPropertyChanged;
 
         SyncFromDataStore();
@@ -78,9 +83,55 @@ public partial class ManualPageViewModel : ObservableObject
             return;
         }
 
-        // MODIFIED
-        if (!_authorizationService.RequestAuthorization())
+        if (!_authorizationService.HasActiveSession)
+        {
+            if (_authorizationService.CurrentRole == UserRole.Operator)
+            {
+                MessageBox.Show(
+                    "Operator is not allowed to perform this action. Please login as Supervisor.",
+                    "Permission Denied",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var authenticatedRole = _authorizationService.RequestAuthorization();
+            if (authenticatedRole == UserRole.Operator)
+            {
+                MessageBox.Show(
+                    "Operator is not allowed to perform this action. Please login as Supervisor.",
+                    "Permission Denied",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            if (authenticatedRole != UserRole.Supervisor)
+            {
+                MessageBox.Show(
+                    "Authorization session expired. Please login again.",
+                    "Session Expired",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+        }
+        else if (_authorizationService.CurrentRole == UserRole.Operator)
+        {
+            MessageBox.Show(
+                "Operator is not allowed to perform this action. Please login as Supervisor.",
+                "Permission Denied",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
             return;
+        }
+
+        if (_authorizationService.CurrentRole != UserRole.Supervisor)
+        {
+            var authenticatedRole = _authorizationService.RequestAuthorization();
+            if (authenticatedRole != UserRole.Supervisor)
+                return;
+        }
 
         _isAuthorizedForEditing = true;
 
@@ -101,6 +152,31 @@ public partial class ManualPageViewModel : ObservableObject
     {
         // MODIFIED: defensive guard for direct command invocation.
         if (!_isAuthorizedForEditing || !IsEditMode)
+            return;
+
+        if (!_authorizationService.HasActiveSession)
+        {
+            MessageBox.Show(
+                "Authorization session expired. Please login again.",
+                "Session Expired",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            _isAuthorizedForEditing = false;
+            IsEditMode = false;
+            return;
+        }
+
+        if (_authorizationService.CurrentRole == UserRole.Operator)
+        {
+            MessageBox.Show(
+                "Operator is not allowed to perform this action. Please login as Supervisor.",
+                "Permission Denied",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_authorizationService.CurrentRole != UserRole.Supervisor)
             return;
 
         Trace($"UpdateAsync starting: Z1SP={Zone1SetPointValue}, Z2SP={Zone2SetPointValue}, Z1Safe={Zone1SafetyTemperatureValue}, Z2Safe={Zone2SafetyTemperatureValue}");
@@ -135,6 +211,7 @@ public partial class ManualPageViewModel : ObservableObject
         // MODIFIED
         _isAuthorizedForEditing = false;
         IsEditMode = false;
+        _authorizationService.ClearAuthorization();
     }
 
     [RelayCommand]
@@ -164,7 +241,29 @@ public partial class ManualPageViewModel : ObservableObject
     private async Task WriteAuthorizedCoilAsync(int address, bool value)
     {
         // MODIFIED: allow the first manual command to establish an edit session.
-        if (!_isAuthorizedForEditing && !_authorizationService.RequestAuthorization())
+        if (!_authorizationService.HasActiveSession)
+        {
+            MessageBox.Show(
+                "Authorization session expired. Please login again.",
+                "Session Expired",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_authorizationService.CurrentRole == UserRole.Operator)
+        {
+            MessageBox.Show(
+                "Operator is not allowed to perform this action. Please login as Supervisor.",
+                "Permission Denied",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (!_isAuthorizedForEditing
+            && _authorizationService.CurrentRole != UserRole.Supervisor
+            && _authorizationService.RequestAuthorization() != UserRole.Supervisor)
             return;
 
         _isAuthorizedForEditing = true;
@@ -248,6 +347,13 @@ public partial class ManualPageViewModel : ObservableObject
         // MODIFIED: authorization is limited to the current page interaction.
         _isAuthorizedForEditing = false;
         IsEditMode = false;
+        _authorizationService.ClearAuthorization();
+    }
+
+    private void OnCurrentRoleChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(CanAttemptSupervisorEdit));
+        OnPropertyChanged(nameof(CanUseSupervisorControls));
     }
 
     private void SyncFromDataStore()

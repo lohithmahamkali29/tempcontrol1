@@ -36,6 +36,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private Recipe? _selectedRecipe;
 
     public bool IsNotEditMode => !IsEditMode;
+    public bool CanAttemptSupervisorEdit => true;
+    public bool CanUseSupervisorEdit =>
+        _authorizationService.CurrentRole == UserRole.Supervisor;
     partial void OnIsEditModeChanged(bool value) => OnPropertyChanged(nameof(IsNotEditMode));
 
     // Editable local fields — step params (D301–D320)
@@ -76,6 +79,7 @@ public partial class SettingsViewModel : ObservableObject
         _manualControlService = manualControlService;
         _databaseService = databaseService;
         _authorizationService = authorizationService;
+        _authorizationService.CurrentRoleChanged += OnCurrentRoleChanged;
         PropertyChanged += OnViewModelPropertyChanged;
         LoadRecipes();
         DataStore.PropertyChanged += (_, e) =>
@@ -88,8 +92,8 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnSelectedRecipeChanged(Recipe? value)
     {
-        if (value is not null && !_loadingRecipe && _isAuthorizedForEditing)
-            _ = ApplySelectedRecipeAsync(value);
+        if (value is not null && !_loadingRecipe)
+            LoadRecipeValues(value);
     }
 
     private void SnapshotFromDataStore()
@@ -126,6 +130,7 @@ public partial class SettingsViewModel : ObservableObject
     private void Edit()
     {
         Trace("Edit requested");
+
         if (DataStore.IsProcessRunning)
         {
             MessageBox.Show(
@@ -136,12 +141,40 @@ public partial class SettingsViewModel : ObservableObject
             return;
         }
 
-        // MODIFIED
-        if (!_authorizationService.RequestAuthorization())
+        var authenticatedRole = _authorizationService.CurrentRole ?? _authorizationService.RequestAuthorization();
+
+        if (!_authorizationService.HasActiveSession)
+        {
+            MessageBox.Show(
+                "Authorization session expired. Please login again.",
+                "Session Expired",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            IsEditMode = false;
+            _isAuthorizedForEditing = false;
             return;
+        }
+
+        if (authenticatedRole == UserRole.Operator)
+        {
+            MessageBox.Show(
+                "Operator is not allowed to edit process parameter values.\nPlease login as Supervisor.",
+                "Edit Restricted",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            IsEditMode = false;
+            _isAuthorizedForEditing = false;
+            return;
+        }
+
+        if (authenticatedRole != UserRole.Supervisor)
+        {
+            IsEditMode = false;
+            _isAuthorizedForEditing = false;
+            return;
+        }
 
         _isAuthorizedForEditing = true;
-
         IsEditMode = true;
     }
 
@@ -168,13 +201,56 @@ public partial class SettingsViewModel : ObservableObject
         // MODIFIED: authorization is limited to the current page interaction.
         _isAuthorizedForEditing = false;
         IsEditMode = false;
+        _authorizationService.ClearAuthorization();
+    }
+
+    [RelayCommand]
+    private async Task SelectRecipeAsync()
+    {
+        if (SelectedRecipe is null || DataStore.IsProcessRunning)
+            return;
+
+        if (_authorizationService.CurrentRole is null
+            && _authorizationService.RequestAuthorization() is null)
+            return;
+
+        if (_authorizationService.CurrentRole is not UserRole.Operator
+            and not UserRole.Supervisor)
+            return;
+
+        await ApplySelectedRecipeAsync(SelectedRecipe);
     }
 
     [RelayCommand]
     private async Task SetRecipeAsync()
     {
         // MODIFIED: defensive checks before any PLC write.
-        if (!_isAuthorizedForEditing || !IsEditMode || DataStore.IsProcessRunning)
+        if (!_isAuthorizedForEditing
+            || !IsEditMode
+            || DataStore.IsProcessRunning)
+            return;
+
+        if (!_authorizationService.HasActiveSession)
+        {
+            MessageBox.Show(
+                "Authorization session expired. Please login again.",
+                "Session Expired",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_authorizationService.CurrentRole == UserRole.Operator)
+        {
+            MessageBox.Show(
+                "Operator is not allowed to perform this action. Please login as Supervisor.",
+                "Permission Denied",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_authorizationService.CurrentRole != UserRole.Supervisor)
             return;
 
         if (SelectedRecipe is null)
@@ -229,6 +305,7 @@ public partial class SettingsViewModel : ObservableObject
                 StatusMessage = $"Recipe applied at {DateTime.Now:HH:mm:ss}";
                 _isAuthorizedForEditing = false;
                 IsEditMode = false;
+                _authorizationService.ClearAuthorization();
                 MessageBox.Show("All values have been changed successfully.", "Recipe Updated", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -269,11 +346,13 @@ public partial class SettingsViewModel : ObservableObject
 
     private async Task ApplySelectedRecipeAsync(Recipe recipe)
     {
-        // MODIFIED: D329 is protected even if this method is invoked directly.
-        if (!_isAuthorizedForEditing || DataStore.IsProcessRunning)
+        if (_authorizationService.CurrentRole is not UserRole.Operator
+            and not UserRole.Supervisor)
             return;
 
-        LoadRecipeValues(recipe);
+        if (DataStore.IsProcessRunning)
+            return;
+
         if (!await _manualControlService.WriteRegisterAsync(329, recipe.RecipeMode))
         {
             StatusMessage = $"Recipe selection failed: D329 was not written for {recipe.RecipeName}.";
@@ -286,6 +365,12 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         StatusMessage = $"Recipe selected: {recipe.RecipeName}";
+    }
+
+    private void OnCurrentRoleChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(CanAttemptSupervisorEdit));
+        OnPropertyChanged(nameof(CanUseSupervisorEdit));
     }
 
     private void LoadRecipeValues(Recipe recipe)
