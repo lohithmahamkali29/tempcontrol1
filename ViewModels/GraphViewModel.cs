@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
@@ -18,8 +19,7 @@ public partial class GraphViewModel : ObservableObject
     private readonly DatabaseService _dbService;
     private readonly ObservableCollection<DateTimePoint> _zone1TemperaturePoints = [];
     private readonly ObservableCollection<DateTimePoint> _zone2TemperaturePoints = [];
-    private readonly ObservableCollection<DateTimePoint> _zone1SetpointPoints = [];
-
+    private readonly ObservableCollection<DateTimePoint> _jobPvPoints = [];
     public ISeries[] Series { get; }
 
     public Axis[] XAxes { get; }
@@ -128,8 +128,8 @@ public partial class GraphViewModel : ObservableObject
 
     new LineSeries<DateTimePoint>
     {
-        Name           = "Zone 1 Setpoint",
-        Values         = _zone1SetpointPoints,
+        Name = "Job PV",
+        Values = _jobPvPoints,
         GeometrySize   = 0,
         LineSmoothness = 1,
         Stroke         = new SolidColorPaint(SKColors.DodgerBlue, 2),
@@ -203,6 +203,55 @@ public partial class GraphViewModel : ObservableObject
         LoadHistoryInternal();
     }
 
+    [RelayCommand]
+    private void ExportPdf()
+    {
+        DateTime from;
+        DateTime to;
+
+        if (IsHistoryMode)
+        {
+            if (!TryGetHistoryRange(out from, out to, out var errorMessage))
+            {
+                HistoryStatusMessage = errorMessage;
+                return;
+            }
+        }
+        else
+        {
+            to = DateTime.Now;
+            from = to.AddHours(-24);
+        }
+
+        var records = _dbService.QueryRangeForPdf(from, to);
+        if (records.Count == 0)
+        {
+            HistoryStatusMessage = "No records found for the selected date and time range.";
+            return;
+        }
+
+        var dialog = new SaveFileDialog
+        {
+            Filter = "PDF files (*.pdf)|*.pdf",
+            FileName = $"OvenTrend_{from:yyyyMMdd_HHmm}_to_{to:yyyyMMdd_HHmm}.pdf",
+            AddExtension = true,
+            DefaultExt = ".pdf"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        try
+        {
+            PdfTrendExporter.Export(dialog.FileName, records, from, to);
+            HistoryStatusMessage = $"PDF exported to {dialog.FileName}";
+        }
+        catch (Exception ex)
+        {
+            HistoryStatusMessage = $"PDF export failed: {ex.Message}";
+        }
+    }
+
     // ── Live timer ────────────────────────────────────────────────────────────
 
     private void OnLiveTimerTick(object? sender, EventArgs e)
@@ -222,8 +271,8 @@ public partial class GraphViewModel : ObservableObject
             _zone2TemperaturePoints.Add(
                 new DateTimePoint(now, DataStore.Zone2Temperature));
 
-            _zone1SetpointPoints.Add(
-                new DateTimePoint(now, DataStore.Zone1Setpoint));
+            _jobPvPoints.Add(
+               new DateTimePoint(now, DataStore.Zone1Output));
             HasData = true;
         }
 
@@ -290,7 +339,7 @@ public partial class GraphViewModel : ObservableObject
 
         var to = DateTime.Now;
         var from = to.AddHours(-24);
-        var history = _dbService.QueryRangeWithSv(from, to);
+        var history = _dbService.QueryRangeWithJobPv(from, to);
 
         LoadPoints(history);
 
@@ -318,7 +367,7 @@ public partial class GraphViewModel : ObservableObject
 
         HistoryStatusMessage = string.Empty;
 
-        var history = _dbService.QueryRangeWithSv(from, to);
+        var history = _dbService.QueryRangeWithJobPv(from, to);
         LoadPoints(history);
 
         _sessionStart = from;
@@ -331,22 +380,20 @@ public partial class GraphViewModel : ObservableObject
     }
 
     private void LoadPoints(
-    List<(DateTime Timestamp,
-          double Zone1Pv,
-          double Zone1Sv,
-          double Zone2Pv,
-          double Zone2Sv)> history)
+     List<(DateTime Timestamp,
+           double Zone1Pv,
+           double Zone2Pv,
+           double JobPv)> history)
     {
         _zone1TemperaturePoints.Clear();
         _zone2TemperaturePoints.Clear();
-        _zone1SetpointPoints.Clear();
+        _jobPvPoints.Clear();
 
         foreach (var (
             timestamp,
             zone1Pv,
-            zone1Sv,
             zone2Pv,
-            zone2Sv) in history)
+            jobPv) in history)
         {
             _zone1TemperaturePoints.Add(
                 new DateTimePoint(timestamp, zone1Pv));
@@ -354,8 +401,8 @@ public partial class GraphViewModel : ObservableObject
             _zone2TemperaturePoints.Add(
                 new DateTimePoint(timestamp, zone2Pv));
 
-            _zone1SetpointPoints.Add(
-                new DateTimePoint(timestamp, zone1Sv));
+            _jobPvPoints.Add(
+                new DateTimePoint(timestamp, jobPv));
         }
 
         HasData = history.Count > 0;

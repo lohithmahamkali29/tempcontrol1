@@ -256,15 +256,9 @@ public sealed class DatabaseService : IDisposable
         cmd.CommandText = """
 
 
-            SELECT Timestamp, Zone1Temp, Zone1Sv, Zone2Temp, Zone2Sv
-
-
+            SELECT Timestamp, Zone1Temp, Zone2Temp, Zone1JobPv
             FROM TemperatureLog
-
-
             WHERE Timestamp >= $from AND Timestamp <= $to
-
-
             ORDER BY Timestamp
 
 
@@ -317,7 +311,44 @@ public sealed class DatabaseService : IDisposable
 
 
     }
+    public List<(DateTime Timestamp, double Zone1Pv, double Zone2Pv, double JobPv)>
+    QueryRangeWithJobPv(DateTime from, DateTime to)
+    {
+        var results = new List<(DateTime, double, double, double)>();
 
+        if (_connection is null)
+            return results;
+
+        using var cmd = _connection.CreateCommand();
+
+        cmd.CommandText = """
+        SELECT Timestamp, Zone1Temp, Zone2Temp, Zone1JobPv
+        FROM TemperatureLog
+        WHERE Timestamp >= $from AND Timestamp <= $to
+        ORDER BY Timestamp
+        """;
+
+        cmd.Parameters.AddWithValue("$from", from.ToString("o"));
+        cmd.Parameters.AddWithValue("$to", to.ToString("o"));
+
+        using var reader = cmd.ExecuteReader();
+
+        while (reader.Read())
+        {
+            var ts = DateTime.Parse(
+                reader.GetString(0),
+                null,
+                DateTimeStyles.RoundtripKind);
+
+            var z1Pv = reader.GetDouble(1);
+            var z2Pv = reader.GetDouble(2);
+            var jobPv = reader.GetDouble(3);
+
+            results.Add((ts, z1Pv, z2Pv, jobPv));
+        }
+
+        return results;
+    }
 
 
 
@@ -481,6 +512,35 @@ public sealed class DatabaseService : IDisposable
     }
 
 
+
+    public List<PdfTrendRecord> QueryRangeForPdf(DateTime from, DateTime to)
+    {
+        var results = new List<PdfTrendRecord>();
+        if (_connection is null) return results;
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = """
+            SELECT Timestamp, Zone1Temp, Zone2Temp, Zone1Sv
+            FROM TemperatureLog
+            WHERE Timestamp >= $from AND Timestamp <= $to
+            ORDER BY Timestamp
+            """;
+        cmd.Parameters.AddWithValue("$from", from.ToString("o"));
+        cmd.Parameters.AddWithValue("$to", to.ToString("o"));
+
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            var timestamp = DateTime.Parse(reader.GetString(0), null, DateTimeStyles.RoundtripKind);
+            results.Add(new PdfTrendRecord(
+                timestamp,
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3)));
+        }
+
+        return results;
+    }
 
     private void SeedRecipesIfEmpty()
     {

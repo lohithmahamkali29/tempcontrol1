@@ -452,8 +452,8 @@ public partial class PlcDataStore : ObservableObject
                     case 120: Zone1Temperature = rawValue/10.0; break; // D120 — Zone 1 PV
                     case 100: Zone1Setpoint = rawValue/10.0; break; // D100 — Zone 1 Temperature (PV)
                     case 121: Zone2Temperature = rawValue/10.0; break; // D121 — Zone 2 PV
-                    case 123: Zone1Output = rawValue/10.0; break; // D100 — Zone 1 Temperature (PV)
-                    case 125: Zone2Output = rawValue/10.0; break; // D101 — Zone 2 Temperature (PV)
+                    case 123: Zone1Output = rawValue; break; // D100 — Zone 1 Temperature (PV)
+                    case 125: Zone2Output = rawValue; break; // D101 — Zone 2 Temperature (PV)
                     //case 102: Zone1Setpoint = rawValue; break; // D102 — Zone 1 SV (live setpoint from controller)
                     case 103: Zone2Setpoint = rawValue; break; // D103 — Zone 2 SV (live setpoint from controller)
                     case 301: Step1Zone1Temp = rawValue; break;

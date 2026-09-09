@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -93,7 +93,7 @@ public partial class HomeViewModel : ObservableObject
 
         DiagnosticLogger.Instance.Log(
             "HOME",
-            $"Run session starting � folder: {dialog.FolderPath}, file: {dialog.FileName}, interval: {dialog.IntervalSeconds}s");
+            $"Run session starting — folder: {dialog.FolderPath}, file: {dialog.FileName}, interval: {dialog.IntervalSeconds}s");
 
         var started = await _runSession.StartAsync(
             dialog.FileName,
@@ -229,11 +229,10 @@ public partial class HomeViewModel : ObservableObject
         // AUTO mode.
         //
         // STOP is enabled only while PLC says process is running.
-        CanStop = running;
+        CanStop =
+    running ||
+    _runSession.IsActive;
 
-        // RUN is enabled only when:
-        // - PLC is not running
-        // - RunSessionService is not active
         CanRun =
             !running &&
             !_runSession.IsActive;
@@ -311,7 +310,7 @@ public partial class HomeViewModel : ObservableObject
 
         var expectedStopEnabled =
             isAutoMode &&
-            isProcessRunning;
+            (isProcessRunning || runSessionIsActive);
 
         var expectation =
             expectedRunEnabled

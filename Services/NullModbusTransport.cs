@@ -101,6 +101,19 @@ internal sealed class NullModbusTransport : IModbusTransport
 
         // ── Zone temperatures (D100–D101) — PV oscillates like a real oven ──
         // Setpoint = 250 °C; PV ramps up then holds with slight ripple
+        if (address == 120)
+        {
+            // D120 is the PLC's Zone 1 PV register used by PlcDataStore.
+            double ramp = Math.Min(1.0, DateTime.UtcNow.TimeOfDay.TotalSeconds % 3600 / 300.0);
+            return (ushort)(30 + (int)(ramp * 220 + Wave(8.0) * 6));
+        }
+        if (address == 121)
+        {
+            // D121 is the PLC's Zone 2 PV register used by PlcDataStore.
+            double ramp = Math.Min(1.0, DateTime.UtcNow.TimeOfDay.TotalSeconds % 3600 / 300.0);
+            return (ushort)(30 + (int)(ramp * 218 + Wave(9.0, 1.0) * 6));
+        }
+
         if (address == 100)
         {
             // Ramp from 30 °C to 250 °C over ~5 min, then hold with ±3 °C ripple
