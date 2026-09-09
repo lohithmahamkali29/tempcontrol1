@@ -16,13 +16,13 @@ public partial class PlcDataStore : ObservableObject
     [ObservableProperty] private double _zone1Setpoint = 200.0;
     [ObservableProperty] private double _zone1Output;
     [ObservableProperty] private double _zone1SafetyTemperature;
-    [ObservableProperty] private double _zone1JobTemperature;  // D123 — Zone1 job thermocouple PV
-    [ObservableProperty] private double _zone1SetPointValueManual;       // D124 — Zone1 ramp rate (°C/min)
+    [ObservableProperty] private double _zone1JobTemperature;  // D123 ï¿½ Zone1 job thermocouple PV
+    [ObservableProperty] private double _zone1SetPointValueManual;       // D124 ï¿½ Zone1 ramp rate (ï¿½C/min)
     [ObservableProperty] private double _zone2Temperature;
     [ObservableProperty] private double _zone2Setpoint = 200.0;
     [ObservableProperty] private double _zone2Output;
     [ObservableProperty] private double _zone2SafetyTemperature;
-    [ObservableProperty] private double _zone2JobTemperature;  // D125 — Zone2 job thermocouple PV
+    [ObservableProperty] private double _zone2JobTemperature;  // D125 ï¿½ Zone2 job thermocouple PV
 
     [ObservableProperty] private bool _blower1ManualStatus;
     [ObservableProperty] private bool _blower2ManualStatus;
@@ -53,7 +53,7 @@ public partial class PlcDataStore : ObservableObject
     [ObservableProperty] private double _elapsedTime;
     [ObservableProperty] private TimeSpan _remainingTime;
     [ObservableProperty] private double _soakTime;
-    // ?? Per-Step Process Parameters (5 steps × 4 values) ??
+    // ?? Per-Step Process Parameters (5 steps ï¿½ 4 values) ??
     [ObservableProperty] private double _step1Zone1Temp;
     [ObservableProperty] private double _step1Zone2Temp;
     [ObservableProperty] private double _step1SoakTime;
@@ -79,7 +79,7 @@ public partial class PlcDataStore : ObservableObject
     [ObservableProperty] private double _step5SoakTime;
     [ObservableProperty] private double _step5RampRate;
 
-    // ?? Global Process Settings (D321–D324) ??
+    // ?? Global Process Settings (D321ï¿½D324) ??
     [ObservableProperty] private double _processZone1Safety;
     [ObservableProperty] private double _processZone2Safety;
     [ObservableProperty] private double _processBlower1;
@@ -217,7 +217,7 @@ public partial class PlcDataStore : ObservableObject
         OnPropertyChanged(nameof(CurrentProcessStepDisplay));
     }
 
-    // ?? I/O Points Collection (for the I/O list page — all from PLC, Slave 4) ??
+    // ?? I/O Points Collection (for the I/O list page ï¿½ all from PLC, Slave 4) ??
     public ObservableCollection<PlcIoPoint> IoPoints { get; } = [];
 
     // ?? Slave Configurations ??
@@ -230,7 +230,7 @@ public partial class PlcDataStore : ObservableObject
     }
 
     // ???????????????????????????????????????????????????????????????????
-    //  I/O Points — all from PLC (Slave 4, Modbus TCP)
+    //  I/O Points ï¿½ all from PLC (Slave 4, Modbus TCP)
     // ???????????????????????????????????????????????????????????????????
 
     private void InitializeIoPoints()
@@ -259,7 +259,7 @@ public partial class PlcDataStore : ObservableObject
 
 
 
-        // ?? Digital Outputs (6 points) — PLC coil addresses 100–105 ??
+        // ?? Digital Outputs (6 points) ï¿½ PLC coil addresses 100ï¿½105 ??
         IoPoints.Add(new PlcIoPoint { SerialNumber = 1, SlaveId = 4, Address = 1600, Name = "Collection fault", Type = IoType.DigitalOutput });
         IoPoints.Add(new PlcIoPoint { SerialNumber = 2, SlaveId = 4, Address = 1601, Name = "Heater-1 Cont.", Type = IoType.DigitalOutput });
         IoPoints.Add(new PlcIoPoint { SerialNumber = 3, SlaveId = 4, Address = 1602, Name = "Heater-2 Cont.", Type = IoType.DigitalOutput });
@@ -273,14 +273,14 @@ public partial class PlcDataStore : ObservableObject
     }
 
     // ???????????????????????????????????????????????????????????????????
-    //  Slave Configs — each register/coil listed individually
+    //  Slave Configs ï¿½ each register/coil listed individually
     // ???????????????????????????????????????????????????????????????????
 
     private void InitializeSlaveConfigs()
     {
 
 
-        // ?? Slave 4: PLC (Omron FINS TCP) — all digital I/O ??
+        // ?? Slave 4: PLC (Omron FINS TCP) ï¿½ all digital I/O ??
         SlaveConfigs.Add(new SlaveDeviceConfig
         {
             SlaveId = 4,
@@ -330,7 +330,7 @@ public partial class PlcDataStore : ObservableObject
                 // W44.0 remains command-related; W110.0 is the actual running status feedback.
                 new(10704, "W44.0 - Process Run/Stop"),
                 new(11760, "W110.0 - Process Running Feedback"),
-                // Note: W area (10640–10643) and coils 400–407 are write-only pulses — not polled
+                // Note: W area (10640ï¿½10643) and coils 400ï¿½407 are write-only pulses ï¿½ not polled
             ],
             HoldingRegisters =
             [
@@ -433,7 +433,7 @@ public partial class PlcDataStore : ObservableObject
     }
 
     // ???????????????????????????????????????????????????????????????????
-    //  Register Mapping — called per-address from the polling service
+    //  Register Mapping ï¿½ called per-address from the polling service
     // ???????????????????????????????????????????????????????????????????
 
     /// <summary>
@@ -446,16 +446,16 @@ public partial class PlcDataStore : ObservableObject
         {
 
 
-            case 4: // PLC (Omron FINS TCP) — D register values
+            case 4: // PLC (Omron FINS TCP) ï¿½ D register values
                 switch (address)
                 {
-                    case 120: Zone1Temperature = rawValue/10.0; break; // D120 — Zone 1 PV
-                    case 100: Zone1Setpoint = rawValue/10.0; break; // D100 — Zone 1 Temperature (PV)
-                    case 121: Zone2Temperature = rawValue/10.0; break; // D121 — Zone 2 PV
-                    case 123: Zone1Output = rawValue; break; // D100 — Zone 1 Temperature (PV)
-                    case 125: Zone2Output = rawValue; break; // D101 — Zone 2 Temperature (PV)
-                    //case 102: Zone1Setpoint = rawValue; break; // D102 — Zone 1 SV (live setpoint from controller)
-                    case 103: Zone2Setpoint = rawValue; break; // D103 — Zone 2 SV (live setpoint from controller)
+                    case 120: Zone1Temperature = rawValue/10.0; break; // D120 ï¿½ Zone 1 PV
+                    case 100: Zone1Setpoint = rawValue/10.0; break; // D100 ï¿½ Zone 1 Temperature (PV)
+                    case 121: Zone2Temperature = rawValue/10.0; break; // D121 ï¿½ Zone 2 PV
+                    case 123: Zone1Output = rawValue; break; // D100 ï¿½ Zone 1 Temperature (PV)
+                    case 125: Zone2Output = rawValue; break; // D101 ï¿½ Zone 2 Temperature (PV)
+                    //case 102: Zone1Setpoint = rawValue; break; // D102 ï¿½ Zone 1 SV (live setpoint from controller)
+                    case 103: Zone2Setpoint = rawValue; break; // D103 ï¿½ Zone 2 SV (live setpoint from controller)
                     case 301: Step1Zone1Temp = rawValue; break;
                     case 302: Step1Zone2Temp = rawValue; break;
                     case 303: Step1SoakTime = rawValue; break;
@@ -480,17 +480,17 @@ public partial class PlcDataStore : ObservableObject
                     case 322: ProcessZone2Safety = rawValue; break;
                     case 323: ProcessBlower1 = rawValue; break;
                     case 324: ProcessBlower2 = rawValue; break;
-                    case 325: Zone1SetPointValueManual = rawValue; break; // D325 — Zone 1 Temp Setpoint (plain 16-bit int from controller)
-                    case 326: Zone2Setpoint = rawValue; break; // D326 — Zone 2 Temp Setpoint (plain 16-bit int)
+                    case 325: Zone1SetPointValueManual = rawValue; break; // D325 ï¿½ Zone 1 Temp Setpoint (plain 16-bit int from controller)
+                    case 326: Zone2Setpoint = rawValue; break; // D326 ï¿½ Zone 2 Temp Setpoint (plain 16-bit int)
                     case 327: Zone1SafetyTemperature = rawValue; break;
                     case 328: Zone2SafetyTemperature = rawValue; break;
-                    //case 123: Zone1JobTemperature = rawValue; break; // D123 — Zone1 job thermocouple PV
-                    //case 125: Zone2JobTemperature = rawValue; break; // D125 — Zone2 job thermocouple PV
+                    //case 123: Zone1JobTemperature = rawValue; break; // D123 ï¿½ Zone1 job thermocouple PV
+                    //case 125: Zone2JobTemperature = rawValue; break; // D125 ï¿½ Zone2 job thermocouple PV
                     case 400: CurrentProcessStep = rawValue == 0 ? (int?)null : (int)rawValue; break; // D400
-                    case 401: ElapsedTime = rawValue; break; // D401 — Elapsed Time (plain int, minutes)
+                    case 401: ElapsedTime = rawValue; break; // D401 ï¿½ Elapsed Time (plain int, minutes)
                     case 402: SoakTime = rawValue; break;
 
-                    // MFM/Meter registers — handled primarily via UpdateEnergyRegisterValue.
+                    // MFM/Meter registers ï¿½ handled primarily via UpdateEnergyRegisterValue.
                     // Fallback groups (each float spans a 3-register window in the meter packing)
                     // Accept older meter placement (D126..D137) as well as the newer map so
                     // the app assembles the floats regardless of which mapping the PLC/meter uses.
@@ -543,17 +543,28 @@ public partial class PlcDataStore : ObservableObject
 
         switch (address)
         {
-            // Contactor feedback coils — drive status indicators on Manual page
-            case 101: Heater1ManualStatus = value; break; // CIO100.1 — Heater-1 Cont.
-            case 102: Heater2ManualStatus = value; break; // CIO100.2 — Heater-2 Cont.
-            case 103: Blower1ManualStatus = value; break; // CIO100.3 — Blower motor-1 Cont.
-            case 104: Blower2ManualStatus = value; break; // CIO100.4 — Blower motor-2 Cont.
+            // Contactor feedback coils ï¿½ drive status indicators on Manual page
+            case 101: Heater1ManualStatus = value; break; // CIO100.1 ï¿½ Heater-1 Cont.
+            case 102: Heater2ManualStatus = value; break; // CIO100.2 ï¿½ Heater-2 Cont.
+            case 103: Blower1ManualStatus = value; break; // CIO100.3 ï¿½ Blower motor-1 Cont.
+            case 104: Blower2ManualStatus = value; break; // CIO100.4 ï¿½ Blower motor-2 Cont.
 
-            // W110.0 — actual machine cycle running feedback for UI sync
-            case 11760:
-                DiagnosticLogger.Instance.Log("PLC-COIL", $"UpdateCoilValue address=11760 (W110.0) incoming={value}, previous={IsProcessRunning}");
+            // W110.0 ï¿½ actual machine cycle running feedback for UI sync
+            // MODIFIED
+            case 10704:
                 IsProcessRunning = value;
-                DiagnosticLogger.Instance.Log("PLC-COIL", $"IsProcessRunning updated={IsProcessRunning}");
+                break;
+
+            // OLD - kept for reference
+            // case 11760:
+            //     DiagnosticLogger.Instance.Log("PLC-COIL", $"UpdateCoilValue address=11760 (W110.0) incoming={value}, previous={IsProcessRunning}");
+            //     IsProcessRunning = value;
+            //     DiagnosticLogger.Instance.Log("PLC-COIL", $"IsProcessRunning updated={IsProcessRunning}");
+            //     break;
+            // MODIFIED
+            case 11760:
+                // W110.0 is retained for monitoring/diagnostic purposes.
+                // It must NOT overwrite IsProcessRunning.
                 break;
             // MANUAL/AUTO selector input (coil 10024)
             case 10024:

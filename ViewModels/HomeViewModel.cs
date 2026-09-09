@@ -102,10 +102,16 @@ public partial class HomeViewModel : ObservableObject
 
         if (started)
         {
-            CanStop = true;
-            IsRunning = true;
+            // OLD - kept for reference
+            // CanStop = true;
+            // IsRunning = true;
+            //
+            // UpdateCanRun();
 
-            UpdateCanRun();
+            // MODIFIED
+            // The PLC W44.0 bit remains the source of truth after the
+            // session starts; do not infer Running from StartAsync().
+            SyncRunState();
 
             TraceState("RunAsync started");
         }
@@ -186,6 +192,7 @@ public partial class HomeViewModel : ObservableObject
 
     private void UpdateCanRun()
     {
+        // OLD - kept for reference
         // Selector meaning in this project:
         //
         // DataStore.IsManualMode == true  => AUTO mode
@@ -196,10 +203,17 @@ public partial class HomeViewModel : ObservableObject
         // - PLC process is not running
         // - no run session is active
 
-        CanRun =
-            DataStore.IsManualMode &&
-            !DataStore.IsProcessRunning &&
-            !_runSession.IsActive;
+        // CanRun =
+        //     DataStore.IsManualMode &&
+        //     !DataStore.IsProcessRunning &&
+        //     !_runSession.IsActive;
+
+        // MODIFIED
+        var isAutoMode = DataStore.IsManualMode;
+        var running = DataStore.IsProcessRunning; // W44.0
+
+        CanRun = isAutoMode && !running;
+        CanStop = isAutoMode;
 
         TraceState("UpdateCanRun");
     }
@@ -208,34 +222,70 @@ public partial class HomeViewModel : ObservableObject
     {
         TraceState("SyncRunState start");
 
+        // OLD - kept for reference
+        // var isAutoMode = DataStore.IsManualMode;
+        // var running = DataStore.IsProcessRunning;
+        //
+        // IsRunning = running;
+        //
+        // if (!isAutoMode)
+        // {
+        //     // Existing project behavior:
+        //     // MANUAL mode => RUN disabled
+        //     // STOP enabled
+        //     CanRun = false;
+        //     CanStop = true;
+        //
+        //     TraceState("SyncRunState end - MANUAL mode");
+        //
+        //     return;
+        // }
+        //
+        // // AUTO mode.
+        // //
+        // // STOP is enabled only while PLC says process is running.
+        // CanStop =
+        //     running ||
+        //     _runSession.IsActive;
+        //
+        // CanRun =
+        //     !running &&
+        //     !_runSession.IsActive;
+        //
+        // TraceState("SyncRunState end");
+
+        // MODIFIED
         var isAutoMode = DataStore.IsManualMode;
-        var running = DataStore.IsProcessRunning;
+        var running = DataStore.IsProcessRunning; // W44.0
 
-        IsRunning = running;
+        // OLD - kept for reference
+        // IsRunning = running;
 
-        if (!isAutoMode)
+        // MODIFIED
+        // Keep the running animation alive while the existing run session
+        // is active and W44.0 is still transitioning to ON.
+        var displayedRunning = running || _runSession.IsActive;
+        IsRunning = displayedRunning;
+
+        if (!isAutoMode) // MANUAL MODE
         {
-            // Existing project behavior:
-            // MANUAL mode => RUN disabled
-            // STOP enabled
             CanRun = false;
-            CanStop = true;
+            CanStop = false;
 
             TraceState("SyncRunState end - MANUAL mode");
 
             return;
         }
 
-        // AUTO mode.
-        //
-        // STOP is enabled only while PLC says process is running.
-        CanStop =
-    running ||
-    _runSession.IsActive;
+        // AUTO MODE
+        // OLD - kept for reference
+        // CanRun = !running;
 
-        CanRun =
-            !running &&
-            !_runSession.IsActive;
+        // MODIFIED
+        // Keep the button state consistent with the Running indicator while
+        // W44.0 feedback is transitioning after the run command.
+        CanRun = !displayedRunning;
+        CanStop = true;
 
         TraceState("SyncRunState end");
     }
@@ -303,18 +353,29 @@ public partial class HomeViewModel : ObservableObject
         var isProcessRunning = DataStore.IsProcessRunning;
         var runSessionIsActive = _runSession.IsActive;
 
+        // OLD - kept for reference
+        // var expectedRunEnabled =
+        //     isAutoMode &&
+        //     !isProcessRunning &&
+        //     !runSessionIsActive;
+
+        // MODIFIED
         var expectedRunEnabled =
             isAutoMode &&
-            !isProcessRunning &&
-            !runSessionIsActive;
+            !isProcessRunning;
 
+        // OLD - kept for reference
+        // var expectedStopEnabled =
+        //     isAutoMode &&
+        //     (isProcessRunning || runSessionIsActive);
+
+        // MODIFIED
         var expectedStopEnabled =
-            isAutoMode &&
-            (isProcessRunning || runSessionIsActive);
+            isAutoMode;
 
         var expectation =
             expectedRunEnabled
-                ? "Expected UI: RUN enabled, STOP disabled"
+                ? "Expected UI: RUN enabled, STOP enabled"
                 : expectedStopEnabled
                     ? "Expected UI: RUN disabled, STOP enabled"
                     : "Expected UI: RUN disabled, STOP disabled";
@@ -322,7 +383,10 @@ public partial class HomeViewModel : ObservableObject
         var message =
             $"{source} | " +
             $"IsManualMode(10024/W1.8)={isAutoMode}, " +
-            $"IsProcessRunning(11760/W110.0)={isProcessRunning}, " +
+            // OLD - kept for reference
+            // $"IsProcessRunning(11760/W110.0)={isProcessRunning}, " +
+            // MODIFIED
+            $"IsProcessRunning(10704/W44.0)={isProcessRunning}, " +
             $"RunSessionIsActive={runSessionIsActive}, " +
             $"IsRunning={IsRunning}, " +
             $"CanRun={CanRun}, " +
