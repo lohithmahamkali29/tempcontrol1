@@ -1,0 +1,487 @@
+<Window x:Class="TempControl.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:TempControl.ViewModels"
+        xmlns:views="clr-namespace:TempControl.Views"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:MainViewModel}"
+        Title="Oven Chamber Control" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F2F5">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+            <views:HomeView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ManualPageViewModel}">
+            <views:ManualPage/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PlcIoViewModel}">
+            <views:PlcIoView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GraphViewModel}">
+            <views:GraphView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AlarmHistoryViewModel}">
+            <views:AlarmHistoryView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MenuViewModel}">
+            <views:MenuView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EnergyReadingsViewModel}">
+            <views:EnergyReadingsView/>
+        </DataTemplate>
+
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#556677"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="28,12"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#E3EAF2"/>
+                                <Setter Property="Foreground" Value="#1565C0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="AlarmNavButton" TargetType="Button" BasedOn="{StaticResource NavButton}">
+            <Setter Property="Content" Value="🕒"/>
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="Background" Value="#1565C0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Visibility" Value="Visible"/>
+
+        </Style>
+        <Style x:Key="CurrentStepBadge" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DCE0E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsHomeSelected}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+
+        </Style>
+        <Style x:Key="AlarmDrawerButton" TargetType="Button">
+            <Setter Property="Background" Value="#1565C0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Header: Logo | Title | Date-Time -->
+        <Border DockPanel.Dock="Top" Background="White" BorderBrush="#DCE0E6" BorderThickness="0,0,0,1" Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo 1 -->
+                <Border Grid.Column="0" Width="150" Height="100" Background="#E0E4EA" CornerRadius="8"
+                        BorderBrush="#CCD0D8" BorderThickness="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Image Source="Assets/logo.png" Stretch="UniformToFill" Margin="-1,0,1,0"/>
+                </Border>
+
+                <!-- Logo 2 -->
+                <Border Grid.Column="1" Width="210" Height="100" Background="#E0E4EA" CornerRadius="8"
+                        BorderBrush="#CCD0D8" BorderThickness="1" VerticalAlignment="Center">
+                    <Image Source="Assets/logo1.png" Stretch="UniformToFill"/>
+                </Border>
+
+                <!-- Centered title -->
+                <TextBlock Grid.Column="2" Text="OVEN CHAMBER" FontSize="34" FontWeight="Bold"
+                           Foreground="#1A237E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <!-- PLC status + Mode badge + Date and Time -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+
+                    <!-- PLC status + Manual/Auto badge stacked vertically -->
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <!-- PLC Connected indicator -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Ellipse Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#E53935"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPlcConnected}" Value="True">
+                                                <Setter Property="Fill" Value="#43A047"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding PlcConnectionStatusText}" FontSize="14" FontWeight="SemiBold"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#E53935"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPlcConnected}" Value="True">
+                                                <Setter Property="Foreground" Value="#43A047"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- Manual/Auto mode badge — below PLC status -->
+                        <!-- IsManualMode = true (bit ON) → AUTO, false (bit OFF) → MANUAL -->
+                        <Border CornerRadius="4" Padding="10,3" Margin="0,5,0,0" HorizontalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#FFEB3B"/>
+                                    <Setter Property="BorderBrush" Value="#F9A825"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataStore.IsManualMode}" Value="True">
+                                            <Setter Property="Background" Value="#E8F5E9"/>
+                                            <Setter Property="BorderBrush" Value="#43A047"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock FontSize="17" FontWeight="Bold" HorizontalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="MANUAL MODE"/>
+                                        <Setter Property="Foreground" Value="#5D4037"/>
+                                        <Setter Property="Width" Value="150"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Height" Value="auto"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataStore.IsManualMode}" Value="True">
+                                                <Setter Property="Text" Value="AUTO MODE"/>
+                                                <Setter Property="Foreground" Value="#2E7D32"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding CurrentDate}" FontFamily="Consolas" FontSize="18"
+                                   Foreground="#333" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding CurrentTime}" FontFamily="Consolas" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1565C0" HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Navigation Bar -->
+        <Border DockPanel.Dock="Top" Background="#F8F9FB" BorderBrush="#DCE0E6" BorderThickness="0,0,0,1" Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Home" Command="{Binding NavigateHomeCommand}" Width="102" FontSize="17">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsHomeSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Manual" Command="{Binding NavigateManualCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsManualSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Process Parameters" Command="{Binding NavigateSettingsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSettingsSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="PLC I/O" Command="{Binding NavigatePlcIoCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPlcIoSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Graph" Command="{Binding NavigateGraphCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsGraphSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Alarm History" Command="{Binding NavigateAlarmHistoryCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAlarmHistorySelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Data Log" Command="{Binding NavigateMenuCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMenuSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Readings" Command="{Binding NavigateEnergyReadingsCommand}" Width="117" FontSize="17">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEnergyReadingsSelected}" Value="True">
+                                        <Setter Property="Background" Value="#1565C0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Grid HorizontalAlignment="Right" Margin="0,0,8,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="13*"/>
+                            <RowDefinition Height="11*"/>
+                        </Grid.RowDefinitions>
+                        <Button Style="{StaticResource AlarmNavButton}"
+                                Command="{Binding HomeVm.ToggleAlarmSidebarCommand}" Margin="4,0,4,0" Grid.RowSpan="2" />
+                        <!-- Alarm count badge -->
+                        <Border Width="10" Height="10" CornerRadius="10"
+                                Background="#E53935"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,-6,-6,0" Panel.ZIndex="10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HomeVm.HasActiveAlarms}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding HomeVm.ActiveAlarmCount}"
+                                       Foreground="White" FontSize="11" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Content Area -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="177*"/>
+                <ColumnDefinition Width="869*"/>
+                <ColumnDefinition Width="54*"/>
+            </Grid.ColumnDefinitions>
+            <ContentControl Content="{Binding CurrentViewModel}" Grid.ColumnSpan="3"/>
+
+            <Border Width="320" Padding="14"
+                    Background="White" BorderBrush="#DCE0E6" BorderThickness="1" CornerRadius="12"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Height="560" Panel.ZIndex="20"
+                    Opacity="0" Grid.Column="1" Grid.ColumnSpan="2">
+                <Border.RenderTransform>
+                    <TranslateTransform X="360"/>
+                </Border.RenderTransform>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Setter Property="IsHitTestVisible" Value="False"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HomeVm.IsAlarmSidebarOpen}" Value="True">
+                                <Setter Property="IsHitTestVisible" Value="True"/>
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.25"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.25" DecelerationRatio="0.7"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="360" Duration="0:0:0.22" AccelerationRatio="0.7"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Latest Alarms" FontSize="20" FontWeight="Bold" Foreground="#1A237E"
+                                   DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Style="{StaticResource AlarmDrawerButton}" Command="{Binding HomeVm.ToggleAlarmSidebarCommand}"
+                                Content="✕" Width="36" Height="36" DockPanel.Dock="Right" Margin="4,0,0,0"/>
+                        <Button Command="{Binding HomeVm.ClearAlarmsCommand}"
+                                Content="Clear" DockPanel.Dock="Right"
+                                Background="#C62828" Foreground="White"
+                                FontSize="12" FontWeight="SemiBold"
+                                BorderThickness="0" Padding="10,6" Cursor="Hand" Height="36">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </DockPanel>
+
+                    <Grid Grid.Row="1" ClipToBounds="True">
+                        <ListBox ItemsSource="{Binding HomeVm.ActiveAlarms}" BorderThickness="0" Background="Transparent"
+                                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.CanContentScroll="True"
+                                 HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Focusable" Value="False"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F8FAFC" CornerRadius="8" Padding="12" Margin="0,0,0,8"
+                                            BorderBrush="#E0E4EA" BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding AlarmDescription}" FontSize="14" FontWeight="SemiBold" Foreground="#C62828" TextWrapping="Wrap"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                <TextBlock Text="Condition: " Foreground="#666" FontSize="12"/>
+                                                <TextBlock Text="{Binding Condition}" Foreground="#333" FontSize="12" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                <TextBlock Text="Time On: " Foreground="#666" FontSize="12"/>
+                                                <TextBlock Text="{Binding TimeOnDisplay}" Foreground="#333" FontSize="12"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                <TextBlock Text="Duration: " Foreground="#666" FontSize="12"/>
+                                                <TextBlock Text="{Binding Duration}" Foreground="#333" FontSize="12"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <TextBlock Text="No active alarms" FontSize="16" Foreground="#999"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HomeVm.HasActiveAlarms}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

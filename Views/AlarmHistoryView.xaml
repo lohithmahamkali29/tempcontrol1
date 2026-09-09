@@ -1,0 +1,168 @@
+<UserControl x:Class="TempControl.Views.AlarmHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TempControl.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:AlarmHistoryViewModel}"
+             Background="#F0F2F5">
+
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="16,12" Margin="0,0,0,12"
+                BorderBrush="#DCE0E6" BorderThickness="1">
+            <TextBlock Text="Alarm History" FontSize="22" FontWeight="Bold" Foreground="#1A237E"/>
+        </Border>
+
+        <Border Grid.Row="1" Background="#16191F" CornerRadius="8" Padding="10"
+                BorderBrush="#2A3040" BorderThickness="1" HorizontalAlignment="Center">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220*"/>
+                    <ColumnDefinition Width="220*"/>
+                    <ColumnDefinition Width="220*"/>
+                    <ColumnDefinition Width="140*"/>
+                    <ColumnDefinition Width="78*"/>
+                    <ColumnDefinition Width="78*"/>
+                </Grid.ColumnDefinitions>
+
+                <DataGrid ItemsSource="{Binding AlarmItems}" AutoGenerateColumns="False" HeadersVisibility="Column"
+                      IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
+                      GridLinesVisibility="Horizontal" RowHeaderWidth="0" AlternatingRowBackground="#1E2533"
+                      Background="#16191F" BorderThickness="0" FontSize="17" RowHeight="50"
+                      ColumnHeaderHeight="48"
+                      
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.RowSpan="2" Grid.ColumnSpan="4" SelectionChanged="DataGrid_SelectionChanged">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="FontSize" Value="17"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Padding" Value="12,10"/>
+                            <Setter Property="Foreground" Value="#90CAF9"/>
+                            <Setter Property="Background" Value="#0D1117"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Padding" Value="12,8"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Foreground" Value="#E0E6F0"/>
+                            <Setter Property="BorderBrush" Value="#2A3040"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="MinHeight" Value="52"/>
+                            <Setter Property="Background" Value="#16191F"/>
+                            <Setter Property="Foreground" Value="#E0E6F0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Background" Value="#3B1A1A"/>
+                                    <Setter Property="Foreground" Value="#FF6B6B"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsAcknowledged}" Value="True">
+                                    <Setter Property="Opacity" Value="0.55"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Alarm Description" Binding="{Binding AlarmDescription}" Width="250"/>
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="110"/>
+                        <DataGridTextColumn Header="Time On" Binding="{Binding TimeOnDisplay}" Width="180"/>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="110"/>
+                        <DataGridTemplateColumn Header="Status" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Padding="12,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#80CBC4"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="ACTIVE">
+                                                        <Setter Property="Foreground" Value="#FF6B6B"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="ACK'D">
+                                                        <Setter Property="Foreground" Value="#FFD54F"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="CLEARED">
+                                                        <Setter Property="Foreground" Value="#80CBC4"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Ack" Width="50" MinWidth="70">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="ACK"
+                                            Command="{Binding DataContext.AckAlarmCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="#1565C0"
+                                            Foreground="White"
+                                            FontWeight="SemiBold"
+                                            BorderThickness="0"
+                                            Padding="12,10"
+                                            Cursor="Hand">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsAcknowledged}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                        <Setter Property="Background" Value="#A5A5A5"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Text="No alarms recorded yet"
+                           FontSize="18" Foreground="#4A5568" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,6,0,0" Grid.Row="1" Grid.Column="1">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding AlarmItems.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="14,12" Margin="0,12,0,0"
+                BorderBrush="#DCE0E6" BorderThickness="1">
+            <DockPanel>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#388E3C" FontSize="13"
+                           VerticalAlignment="Center" DockPanel.Dock="Left" Margin="0,0,16,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="ACK ALL" Command="{Binding AckAllCommand}" Background="#1565C0"
+                            Foreground="White" FontWeight="SemiBold" BorderThickness="0"
+                            Padding="18,10" Margin="0,0,12,0" Cursor="Hand" Click="Button_Click"/>
+                    <Button Content="RESET ALL" Command="{Binding ResetAllCommand}" Background="#C62828"
+                            Foreground="White" FontWeight="SemiBold" BorderThickness="0"
+                            Padding="18,10" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,208 @@
+<UserControl x:Class="TempControl.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TempControl.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
+             Background="#F0F2F5">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#1A237E"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#555"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Width" Value="150"/>
+        </Style>
+        <Style x:Key="FieldInput" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#222"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderBrush" Value="#90A4AE"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style x:Key="StepHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#1A237E"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="StepLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+        <Style x:Key="StepInput" TargetType="TextBox" BasedOn="{StaticResource FieldInput}">
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="6,5,12,5"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#5C6BC0"/>
+        </Style>
+        <Style x:Key="StepUnitLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,14,0"/>
+        </Style>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="BorderBrush" Value="#DCE0E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+        <StackPanel>
+
+            <!-- Process Parameters Table -->
+            <Border Style="{StaticResource CardBorder}" HorizontalAlignment="Center"> 
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionHeader}" Text="Process Parameters"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Recipe:" Width="55"/>
+                        <ComboBox Width="250" ItemsSource="{Binding Recipes}"
+                                  DisplayMemberPath="RecipeName" SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
+                                  FontSize="14" Padding="6,4"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="170"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header row -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource StepHeader}" Text="Step" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource StepHeader}" Text="Zone 1 and 2 Temp °C"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Style="{StaticResource StepHeader}" Text="Soak Time in Min"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Style="{StaticResource StepHeader}" Text="Ramp Time in Min"/>
+
+                        <!-- Step 1 -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 1" VerticalAlignment="Center"/>
+                        <TextBox   Grid.Row="1" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step1Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="1" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step1SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="1" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step1RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Step 2 -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 2" VerticalAlignment="Center"/>
+                        <TextBox   Grid.Row="2" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step2Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="2" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step2SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="2" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step2RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Step 3 -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 3" VerticalAlignment="Center"/>
+                        <TextBox   Grid.Row="3" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="3" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="3" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Step 4 -->
+                        <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 4" VerticalAlignment="Center"/>
+                        <TextBox   Grid.Row="4" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="4" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="4" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Step 5 -->
+                        <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 5" VerticalAlignment="Center"/>
+                        <TextBox   Grid.Row="5" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="5" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox   Grid.Row="5" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Separator -->
+                        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" Height="1" Background="#DCE0E6" Margin="0,6" />
+
+                        <!-- Zone 1 Safety / Zone 2 Safety / Blower 1 / Blower 2 — horizontal -->
+                        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4"
+                                    Orientation="Horizontal" Margin="0,6,0,0">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Style="{StaticResource StepLabel}" Text="Zone 1 and 2 Safety" Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource StepInput}" Width="120" IsEnabled="{Binding IsEditMode}"
+                                         Text="{Binding ProcessZone1Safety, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                           
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Style="{StaticResource StepLabel}" Text=" Exhaust Blower ON Time " Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource StepInput}" Width="120" IsEnabled="{Binding IsEditMode}"
+                                         Text="{Binding ProcessBlower1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource StepLabel}" Text="Exhaust Blower Off Time" Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource StepInput}" Width="120" IsEnabled="{Binding IsEditMode}"
+                                         Text="{Binding ProcessBlower2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Edit / Update buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                        <Button Content="Edit" Command="{Binding EditCommand}"
+                                Visibility="{Binding IsNotEditMode, Converter={StaticResource BoolToVis}}"
+                                Background="#1565C0" Foreground="White" FontSize="14" FontWeight="SemiBold"
+                                Padding="24,10" Margin="0,0,12,0" BorderThickness="0" Cursor="Hand" Width="110">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Content="Set Recipe" Command="{Binding SetRecipeCommand}"
+                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
+                                Background="#4CAF50" Foreground="White" FontSize="14" FontWeight="SemiBold"
+                                Padding="24,10" Margin="0,0,12,0" BorderThickness="0" Cursor="Hand" Width="110">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Status message -->
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="#388E3C" FontSize="12"
+                               Margin="0,8,0,0" HorizontalAlignment="Center"/>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

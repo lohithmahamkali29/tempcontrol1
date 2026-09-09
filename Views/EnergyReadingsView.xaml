@@ -1,0 +1,136 @@
+<UserControl x:Class="TempControl.Views.EnergyReadingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TempControl.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:EnergyReadingsViewModel}"
+             Background="#F0F2F5">
+
+    <UserControl.Resources>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#DCE0E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,14"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Width" Value="600"/>
+        </Style>
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1A237E"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#555"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="FieldBox" TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1A237E"/>
+            <Setter Property="Background" Value="#F5F7FA"/>
+            <Setter Property="BorderBrush" Value="#DCE0E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,40,14"/>
+            <Setter Property="Width" Value="100"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Page Title -->
+            <TextBlock Grid.Row="0" Text="Energy Readings" HorizontalAlignment="Center"
+                       FontSize="28" FontWeight="Bold" Foreground="#1A237E"
+                       Margin="10,0,0,16"/>
+
+            <!-- Single Consolidated Card -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+                <Grid HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="90*"/>
+
+                    </Grid.ColumnDefinitions>
+
+                    <!-- TOTAL POWER -->
+                    <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                        <TextBlock Text="TOTAL POWER" Style="{StaticResource CardTitle}" />
+
+                        <TextBlock Text="R-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.CurrentR, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Y-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.CurrentY, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="B-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.CurrentB, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="R-PHASE VOLTAGE" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.VoltageR, StringFormat={}{0:F1}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Y-PHASE VOLTAGE" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.VoltageY, StringFormat={}{0:F1}, Mode=OneWay}"/>
+
+                        <TextBlock Text="B-PHASE VOLTAGE" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.VoltageB, StringFormat={}{0:F1}, Mode=OneWay}"/>
+
+                        <TextBlock Text="TOTAL KW" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.TotalPowerKw, StringFormat={}{0:F3}, Mode=OneWay}"/>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <!-- <Border Grid.Column="1" Width="1" Background="#DCE0E6" Margin="0,0,20,0"/>-->
+
+                    <!-- ZONE-1 POWER -->
+                    <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                        <TextBlock Text="ZONE-1 POWER" Style="{StaticResource CardTitle}"/>
+
+                        <TextBlock Text="R-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone1CurrentR, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Y-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone1CurrentY, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="B-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone1CurrentB, StringFormat={}{0:F2}, Mode=OneWay}"/>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <!-- <Border Grid.Column="3" Width="1" Background="#DCE0E6" Margin="0,0,0,0"/>-->
+
+                    <!-- ZONE-2 POWER -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="ZONE-2 POWER" Style="{StaticResource CardTitle}"/>
+
+                        <TextBlock Text="R-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone2CurrentR, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Y-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone2CurrentY, StringFormat={}{0:F2}, Mode=OneWay}"/>
+
+                        <TextBlock Text="B-PHASE CURRENT" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Style="{StaticResource FieldBox}" Text="{Binding DataStore.Zone2CurrentB, StringFormat={}{0:F2}, Mode=OneWay}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

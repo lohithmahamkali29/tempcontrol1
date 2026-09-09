@@ -1,0 +1,194 @@
+<UserControl x:Class="TempControl.Views.PlcIoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TempControl.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:PlcIoViewModel}"
+             Background="#F0F2F5">
+
+    <UserControl.Resources>
+        <!-- Table heading style -->
+        <Style x:Key="TableTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1A237E"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- Column header style -->
+        <Style x:Key="ColHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0"/>
+        </Style>
+
+        <!-- Data cell style -->
+        <Style x:Key="DataCell" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <!-- Row item container (no selection highlight) -->
+        <Style x:Key="IoRowItem" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" Padding="0,7" BorderBrush="#E8EAF0" BorderThickness="0,0,0,1">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F0F4FA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Status circle: green when ON, red when OFF -->
+        <Style x:Key="StatusCircle" TargetType="Ellipse">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Fill" Value="#E53935"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding BoolValue}" Value="True">
+                    <Setter Property="Fill" Value="#43A047"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ???????????? INPUT TABLE (left) ???????????? -->
+        <DockPanel Grid.Column="0">
+            <TextBlock DockPanel.Dock="Top" Style="{StaticResource TableTitle}" Text="INPUT"/>
+
+            <!-- Column headers -->
+            <Border DockPanel.Dock="Top" Background="#1565C0" CornerRadius="6,6,0,0" Padding="0,10,17,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6*"/>
+                        <ColumnDefinition Width="10*"/>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="7*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Style="{StaticResource ColHeader}" Text="S No." HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Style="{StaticResource ColHeader}" Text="Description"/>
+                    <TextBlock Grid.Column="2" Style="{StaticResource ColHeader}" Text="Arrival" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Style="{StaticResource ColHeader}" Text="Resolved" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Style="{StaticResource ColHeader}" Text="Status" HorizontalAlignment="Center" Margin="0"/>
+                </Grid>
+            </Border>
+
+            <!-- Input rows -->
+            <ListBox ItemsSource="{Binding InputPoints}" Background="White"
+                     BorderBrush="#DCE0E6" BorderThickness="1,0,1,1"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     HorizontalContentAlignment="Stretch"
+                     ItemContainerStyle="{StaticResource IoRowItem}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*"/>
+                                <ColumnDefinition Width="10*"/>
+                                <ColumnDefinition Width="9*"/>
+                                <ColumnDefinition Width="9*"/>
+                                <ColumnDefinition Width="7*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource DataCell}"
+                                       Text="{Binding SerialNumber}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource DataCell}"
+                                       Text="{Binding Name}"/>
+                            <TextBlock Grid.Column="2" Style="{StaticResource DataCell}"
+                                       Text="{Binding ArrivalTime}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas" Foreground="#2E7D32"/>
+                            <TextBlock Grid.Column="3" Style="{StaticResource DataCell}"
+                                       Text="{Binding ResolvedTime}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas" Foreground="#C62828"/>
+                            <Ellipse   Grid.Column="4" Style="{StaticResource StatusCircle}"
+                                       HorizontalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- ???????????? OUTPUT TABLE (right) ???????????? -->
+        <DockPanel Grid.Column="2">
+            <TextBlock DockPanel.Dock="Top" Style="{StaticResource TableTitle}" Text="OUTPUT"/>
+
+            <!-- Column headers -->
+            <Border DockPanel.Dock="Top" Background="#1565C0" CornerRadius="6,6,0,0" Padding="0,10,17,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6*"/>
+                        <ColumnDefinition Width="10*"/>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="7*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Style="{StaticResource ColHeader}" Text="S No." HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Style="{StaticResource ColHeader}" Text="Description"/>
+                    <TextBlock Grid.Column="2" Style="{StaticResource ColHeader}" Text="Arrival" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Style="{StaticResource ColHeader}" Text="Resolved" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Style="{StaticResource ColHeader}" Text="Status" HorizontalAlignment="Center" Margin="0"/>
+                </Grid>
+            </Border>
+
+            <!-- Output rows -->
+            <ListBox ItemsSource="{Binding OutputPoints}" Background="White"
+                     BorderBrush="#DCE0E6" BorderThickness="1,0,1,1"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     HorizontalContentAlignment="Stretch"
+                     ItemContainerStyle="{StaticResource IoRowItem}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*"/>
+                                <ColumnDefinition Width="10*"/>
+                                <ColumnDefinition Width="9*"/>
+                                <ColumnDefinition Width="9*"/>
+                                <ColumnDefinition Width="7*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource DataCell}"
+                                       Text="{Binding SerialNumber}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource DataCell}"
+                                       Text="{Binding Name}"/>
+                            <TextBlock Grid.Column="2" Style="{StaticResource DataCell}"
+                                       Text="{Binding ArrivalTime}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas" Foreground="#2E7D32"/>
+                            <TextBlock Grid.Column="3" Style="{StaticResource DataCell}"
+                                       Text="{Binding ResolvedTime}" HorizontalAlignment="Center"
+                                       FontFamily="Consolas" Foreground="#C62828"/>
+                            <Ellipse   Grid.Column="4" Style="{StaticResource StatusCircle}"
+                                       HorizontalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</UserControl>

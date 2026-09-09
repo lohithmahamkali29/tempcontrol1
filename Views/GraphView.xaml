@@ -1,0 +1,227 @@
+<UserControl x:Class="TempControl.Views.GraphView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:vm="clr-namespace:TempControl.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:GraphViewModel}"
+             Background="#0D1B2A">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <!-- Zoom RadioButton styled as toggle pill buttons -->
+        <Style x:Key="ZoomBtnStyle" TargetType="RadioButton">
+            <Setter Property="GroupName" Value="Zoom"/>
+            <Setter Property="Foreground" Value="#7A9BBF"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#1E3A5F"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,5"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              TextBlock.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#FFFFFF"/>
+                                <Setter Property="Foreground" Value="#0D1B2A"/>
+                                <Setter Property="BorderBrush" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1E3A5F"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16,12,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Title + Legend -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="Temperature Trend"
+               FontSize="20"
+               FontWeight="Bold"
+               Foreground="White"
+               VerticalAlignment="Center"
+               DockPanel.Dock="Left"/>
+
+            <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center">
+
+                <!-- Zone 1 Temperature -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                    <Rectangle Width="22"
+                       Height="3"
+                       Fill="#FF4444"
+                       RadiusX="1"
+                       RadiusY="1"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+                    <TextBlock Text="Zone 1 Temperature"
+                       Foreground="#7A9BBF"
+                       FontSize="12"
+                       VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Zone 2 Temperature -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                    <Rectangle Width="22"
+                       Height="3"
+                       Fill="#22BB55"
+                       RadiusX="1"
+                       RadiusY="1"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+                    <TextBlock Text="Zone 2 Temperature"
+                       Foreground="#7A9BBF"
+                       FontSize="12"
+                       VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Zone 1 Setpoint -->
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="22"
+                       Height="3"
+                       Fill="#4DA6FF"
+                       RadiusX="1"
+                       RadiusY="1"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+                    <TextBlock Text="Zone 1 Setpoint"
+                       Foreground="#7A9BBF"
+                       FontSize="12"
+                       VerticalAlignment="Center"/>
+                </StackPanel>
+
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Row 1: Mode Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12" VerticalAlignment="Center">
+            <TextBlock Text="Mode" Foreground="#7A9BBF" FontSize="12"
+                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <RadioButton Content="Live" Style="{StaticResource ZoomBtnStyle}"
+                         IsChecked="{Binding IsLiveMode, Mode=OneWay}"
+                         Command="{Binding SetModeCommand}" CommandParameter="Live"/>
+            <RadioButton Content="History" Style="{StaticResource ZoomBtnStyle}"
+                         IsChecked="{Binding IsHistoryMode, Mode=OneWay}"
+                         Command="{Binding SetModeCommand}" CommandParameter="History"/>
+        </StackPanel>
+
+        <!-- Row 2: Mode-specific controls -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                        Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Zoom" Foreground="#7A9BBF" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <RadioButton Content="5m" Style="{StaticResource ZoomBtnStyle}"
+                             Command="{Binding SetZoomCommand}" CommandParameter="5m"/>
+                <RadioButton Content="15m" Style="{StaticResource ZoomBtnStyle}"
+                             Command="{Binding SetZoomCommand}" CommandParameter="15m"/>
+                <RadioButton Content="30m" Style="{StaticResource ZoomBtnStyle}" IsChecked="True"
+                             Command="{Binding SetZoomCommand}" CommandParameter="30m"/>
+                <RadioButton Content="1h" Style="{StaticResource ZoomBtnStyle}"
+                             Command="{Binding SetZoomCommand}" CommandParameter="1h"/>
+                <RadioButton Content="All" Style="{StaticResource ZoomBtnStyle}"
+                             Command="{Binding SetZoomCommand}" CommandParameter="All"/>
+            </StackPanel>
+
+            <WrapPanel VerticalAlignment="Center"
+                       Visibility="{Binding IsHistoryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="From" Foreground="#7A9BBF" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <DatePicker SelectedDate="{Binding HistoryFromDate, Mode=TwoWay}"
+                            Margin="0,0,8,0"/>
+                <TextBox Width="60" Text="{Binding HistoryFromTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" Margin="0,0,16,0"/>
+
+                <TextBlock Text="To" Foreground="#7A9BBF" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <DatePicker SelectedDate="{Binding HistoryToDate, Mode=TwoWay}"
+                            Margin="0,0,8,0"/>
+                <TextBox Width="60" Text="{Binding HistoryToTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" Margin="0,0,16,0"/>
+
+                <Button Content="Load History" Command="{Binding LoadHistoryCommand}"
+                        Padding="12,5" Margin="0,0,12,0" Cursor="Hand"/>
+
+                <TextBlock Text="Use HH:mm format" Foreground="#7A9BBF" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                <TextBlock Text="{Binding HistoryStatusMessage}" Foreground="#FFB347" FontSize="12"
+                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </WrapPanel>
+        </StackPanel>
+
+        <!-- Row 3: Two Charts side by side -->
+        <Border Grid.Row="3"
+        Grid.Column="0"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        Background="#071020"
+        CornerRadius="8"
+        BorderBrush="#1E3A5F"
+        BorderThickness="1">
+
+            <lvc:CartesianChart
+        Series="{Binding Series}"
+        XAxes="{Binding XAxes}"
+        YAxes="{Binding YAxes}"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        TooltipPosition="Top"
+        AnimationsSpeed="00:00:00.100"
+        ZoomMode="Both"
+        Background="Transparent"/>
+
+        </Border>
+
+        <!-- Row 4: Horizontal scrollbar — drag left to see historical data, right = live -->
+        <Border Grid.Row="4" Background="#071020" CornerRadius="4"
+                BorderBrush="#1E3A5F" BorderThickness="1" Margin="0,8,0,0" Padding="4,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ScrollBar Grid.Column="0" Orientation="Horizontal" Height="14"
+                           Minimum="0"
+                           Maximum="{Binding ScrollMaximum}"
+                           Value="{Binding ScrollPosition, Mode=TwoWay}"
+                           ViewportSize="{Binding ScrollViewport}"
+                           VerticalAlignment="Center"/>
+                <!-- LIVE badge — shown when scrollbar is at right end -->
+                <Border Grid.Column="1" Background="#22BB55" CornerRadius="3"
+                        Padding="8,2" Margin="8,0,0,0" VerticalAlignment="Center"
+                        Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="● LIVE" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
