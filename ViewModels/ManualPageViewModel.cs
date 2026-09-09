@@ -20,8 +20,10 @@ public partial class ManualPageViewModel : ObservableObject
     ];
 
     private readonly ManualControlService _manualControlService;
+    private readonly AuthorizationService _authorizationService;
     private readonly DispatcherTimer _refreshTimer;
     private bool _isSyncingFromDataStore;
+    private bool _isAuthorizedForEditing;
 
     public PlcDataStore DataStore { get; }
 
@@ -40,10 +42,14 @@ public partial class ManualPageViewModel : ObservableObject
     public bool Heater1Status => DataStore.Heater1ManualStatus;
     public bool Heater2Status => DataStore.Heater2ManualStatus;
 
-    public ManualPageViewModel(PlcDataStore dataStore, ManualControlService manualControlService)
+    public ManualPageViewModel(
+        PlcDataStore dataStore,
+        ManualControlService manualControlService,
+        AuthorizationService authorizationService)
     {
         DataStore = dataStore;
         _manualControlService = manualControlService;
+        _authorizationService = authorizationService;
         PropertyChanged += OnViewModelPropertyChanged;
 
         SyncFromDataStore();
@@ -72,6 +78,12 @@ public partial class ManualPageViewModel : ObservableObject
             return;
         }
 
+        // MODIFIED
+        if (!_authorizationService.RequestAuthorization())
+            return;
+
+        _isAuthorizedForEditing = true;
+
         // Snapshot current PLC values into editable fields
         _isSyncingFromDataStore = true;
         Zone1SetPointValue = DataStore.Zone1SetPointValueManual;
@@ -87,6 +99,10 @@ public partial class ManualPageViewModel : ObservableObject
     [RelayCommand]
     private async Task UpdateAsync()
     {
+        // MODIFIED: defensive guard for direct command invocation.
+        if (!_isAuthorizedForEditing || !IsEditMode)
+            return;
+
         Trace($"UpdateAsync starting: Z1SP={Zone1SetPointValue}, Z2SP={Zone2SetPointValue}, Z1Safe={Zone1SafetyTemperatureValue}, Z2Safe={Zone2SafetyTemperatureValue}");
 
         var writes = new (int Address, double Value, string Label)[]
@@ -116,32 +132,44 @@ public partial class ManualPageViewModel : ObservableObject
             ? $"UpdateAsync finished with failures: {string.Join(", ", failed)}"
             : "UpdateAsync finished successfully");
 
+        // MODIFIED
+        _isAuthorizedForEditing = false;
         IsEditMode = false;
     }
 
     [RelayCommand]
-    private Task Blower1OnAsync() => WriteCoilDirectAsync(10640, true);
+    private Task Blower1OnAsync() => WriteAuthorizedCoilAsync(10640, true);
 
     [RelayCommand]
-    private Task Blower1OffAsync() => WriteCoilDirectAsync(10640, false);
+    private Task Blower1OffAsync() => WriteAuthorizedCoilAsync(10640, false);
 
     [RelayCommand]
-    private Task Blower2OnAsync() => WriteCoilDirectAsync(10641, true);
+    private Task Blower2OnAsync() => WriteAuthorizedCoilAsync(10641, true);
 
     [RelayCommand]
-    private Task Blower2OffAsync() => WriteCoilDirectAsync(10641, false);
+    private Task Blower2OffAsync() => WriteAuthorizedCoilAsync(10641, false);
 
     [RelayCommand]
-    private Task Heater1OnAsync() => WriteCoilDirectAsync(10642, true);
+    private Task Heater1OnAsync() => WriteAuthorizedCoilAsync(10642, true);
 
     [RelayCommand]
-    private Task Heater1OffAsync() => WriteCoilDirectAsync(10642, false);
+    private Task Heater1OffAsync() => WriteAuthorizedCoilAsync(10642, false);
 
     [RelayCommand]
-    private Task Heater2OnAsync() => WriteCoilDirectAsync(10643, true);
+    private Task Heater2OnAsync() => WriteAuthorizedCoilAsync(10643, true);
 
     [RelayCommand]
-    private Task Heater2OffAsync() => WriteCoilDirectAsync(10643, false);
+    private Task Heater2OffAsync() => WriteAuthorizedCoilAsync(10643, false);
+
+    private async Task WriteAuthorizedCoilAsync(int address, bool value)
+    {
+        // MODIFIED: allow the first manual command to establish an edit session.
+        if (!_isAuthorizedForEditing && !_authorizationService.RequestAuthorization())
+            return;
+
+        _isAuthorizedForEditing = true;
+        await WriteCoilDirectAsync(address, value);
+    }
 
     private async Task WriteRegisterAsync(int address, double value, string propertyName)
     {
@@ -213,6 +241,13 @@ public partial class ManualPageViewModel : ObservableObject
     {
         Trace("OnNavigatedTo called");
         SyncFromDataStore();
+    }
+
+    public void OnNavigatedFrom()
+    {
+        // MODIFIED: authorization is limited to the current page interaction.
+        _isAuthorizedForEditing = false;
+        IsEditMode = false;
     }
 
     private void SyncFromDataStore()

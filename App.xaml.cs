@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TempControl.Services;
 
 namespace TempControl
 {
@@ -7,11 +8,13 @@ namespace TempControl
     /// </summary>
     public partial class App : Application
     {
+        public AuthorizationService AuthorizationService { get; } = new();
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow(AuthorizationService);
             MainWindow = mainWindow;
             mainWindow.Show();
         }

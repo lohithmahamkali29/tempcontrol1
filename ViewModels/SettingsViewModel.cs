@@ -25,7 +25,9 @@ public partial class SettingsViewModel : ObservableObject
     public PlcDataStore DataStore { get; }
     private readonly ManualControlService _manualControlService;
     private readonly DatabaseService _databaseService;
+    private readonly AuthorizationService _authorizationService;
     private bool _loadingRecipe;
+    private bool _isAuthorizedForEditing;
 
     public ObservableCollection<Recipe> Recipes { get; } = [];
 
@@ -64,11 +66,16 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private double _processBlower1;
     [ObservableProperty] private double _processBlower2;
 
-    public SettingsViewModel(PlcDataStore dataStore, ManualControlService manualControlService, DatabaseService databaseService)
+    public SettingsViewModel(
+        PlcDataStore dataStore,
+        ManualControlService manualControlService,
+        DatabaseService databaseService,
+        AuthorizationService authorizationService)
     {
         DataStore = dataStore;
         _manualControlService = manualControlService;
         _databaseService = databaseService;
+        _authorizationService = authorizationService;
         PropertyChanged += OnViewModelPropertyChanged;
         LoadRecipes();
         DataStore.PropertyChanged += (_, e) =>
@@ -81,7 +88,7 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnSelectedRecipeChanged(Recipe? value)
     {
-        if (value is not null && !_loadingRecipe)
+        if (value is not null && !_loadingRecipe && _isAuthorizedForEditing)
             _ = ApplySelectedRecipeAsync(value);
     }
 
@@ -129,6 +136,12 @@ public partial class SettingsViewModel : ObservableObject
             return;
         }
 
+        // MODIFIED
+        if (!_authorizationService.RequestAuthorization())
+            return;
+
+        _isAuthorizedForEditing = true;
+
         IsEditMode = true;
     }
 
@@ -150,9 +163,20 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    public void OnNavigatedFrom()
+    {
+        // MODIFIED: authorization is limited to the current page interaction.
+        _isAuthorizedForEditing = false;
+        IsEditMode = false;
+    }
+
     [RelayCommand]
     private async Task SetRecipeAsync()
     {
+        // MODIFIED: defensive checks before any PLC write.
+        if (!_isAuthorizedForEditing || !IsEditMode || DataStore.IsProcessRunning)
+            return;
+
         if (SelectedRecipe is null)
             return;
 
@@ -203,6 +227,7 @@ public partial class SettingsViewModel : ObservableObject
                 _databaseService.UpdateRecipe(SelectedRecipe);
                 PlcStateCache.Save(DataStore);
                 StatusMessage = $"Recipe applied at {DateTime.Now:HH:mm:ss}";
+                _isAuthorizedForEditing = false;
                 IsEditMode = false;
                 MessageBox.Show("All values have been changed successfully.", "Recipe Updated", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -244,6 +269,10 @@ public partial class SettingsViewModel : ObservableObject
 
     private async Task ApplySelectedRecipeAsync(Recipe recipe)
     {
+        // MODIFIED: D329 is protected even if this method is invoked directly.
+        if (!_isAuthorizedForEditing || DataStore.IsProcessRunning)
+            return;
+
         LoadRecipeValues(recipe);
         if (!await _manualControlService.WriteRegisterAsync(329, recipe.RecipeMode))
         {

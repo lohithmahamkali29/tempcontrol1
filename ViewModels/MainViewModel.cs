@@ -51,7 +51,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public bool IsPlcConnected => DataStore.SlaveConfigs.FirstOrDefault(s => s.SlaveId == 4)?.IsConnected == true;
     public string PlcConnectionStatusText => IsPlcConnected ? "PLC Connected" : "PLC Disconnected";
 
-    public MainViewModel()
+    public MainViewModel(AuthorizationService authorizationService)
     {
         DataStore = new PlcDataStore();
 
@@ -91,8 +91,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         var manualControlService = new ManualControlService(DataStore, PollingService);
         _runSession = runSession;
         HomeVm = new HomeViewModel(DataStore, runSession, _alarmHistoryService);
-        ManualVm = new ManualPageViewModel(DataStore, manualControlService);
-        SettingsVm = new SettingsViewModel(DataStore, manualControlService, DbService);
+        ManualVm = new ManualPageViewModel(DataStore, manualControlService, authorizationService);
+        SettingsVm = new SettingsViewModel(DataStore, manualControlService, DbService, authorizationService);
         PlcIoVm = new PlcIoViewModel(DataStore);
         GraphVm = new GraphViewModel(DataStore, DbService);
         AlarmHistoryVm = new AlarmHistoryViewModel(_alarmHistoryService);

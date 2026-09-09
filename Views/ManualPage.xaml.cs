@@ -18,6 +18,8 @@ namespace TempControl.Views
             {
                 if (e.NewValue is true)
                     TryNotifyNavigated();
+                else if (DataContext is ManualPageViewModel vm)
+                    vm.OnNavigatedFrom();
             };
             DataContextChanged += (_, _) => TryNotifyNavigated();
         }

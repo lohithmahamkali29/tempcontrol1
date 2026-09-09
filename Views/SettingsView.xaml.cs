@@ -12,6 +12,8 @@ public partial class SettingsView : UserControl
         {
             if ((bool)e.NewValue && DataContext is SettingsViewModel vm)
                 vm.OnNavigatedTo();
+            else if (!(bool)e.NewValue && DataContext is SettingsViewModel settingsVm)
+                settingsVm.OnNavigatedFrom();
         };
     }
 }

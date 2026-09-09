@@ -86,6 +86,7 @@
                         <TextBlock Style="{StaticResource FieldLabel}" Text="Recipe:" Width="55"/>
                         <ComboBox Width="250" ItemsSource="{Binding Recipes}"
                                   DisplayMemberPath="RecipeName" SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
+                                  IsEnabled="{Binding IsEditMode}"
                                   FontSize="14" Padding="6,4"/>
                     </StackPanel>
 

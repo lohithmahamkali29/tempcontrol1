@@ -1,0 +1,45 @@
+<Window x:Class="TempControl.Views.AuthorizationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Authorization Required"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+    <Border Padding="24" Background="White">
+        <Grid MinWidth="300">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                       Text="Authorization Required"
+                       FontSize="20" FontWeight="Bold" Foreground="#1A237E"
+                       Margin="0,0,0,18"/>
+            <TextBlock Grid.Row="1" Text="Username" VerticalAlignment="Center" Margin="0,0,14,10"/>
+            <TextBox x:Name="UsernameTextBox" Grid.Row="1" Grid.Column="1"
+                     Margin="0,0,0,10" Padding="8"/>
+            <TextBlock Grid.Row="2" Text="Password" VerticalAlignment="Center" Margin="0,0,14,10"/>
+            <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="1"
+                         Margin="0,0,0,10" Padding="8"/>
+            <TextBlock x:Name="ErrorTextBlock" Grid.Row="3" Grid.ColumnSpan="2"
+                       Text="Invalid username or password."
+                       Foreground="#C62828" Visibility="Collapsed"
+                       Margin="0,0,0,12"/>
+            <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="Cancel" IsCancel="True" Padding="16,8" Margin="0,0,8,0"/>
+                <Button Content="Authorize" IsDefault="True" Padding="16,8"
+                        Click="AuthorizeButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
