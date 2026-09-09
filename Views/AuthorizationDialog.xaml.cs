@@ -7,6 +7,8 @@ public partial class AuthorizationDialog : Window
 {
     private readonly AuthorizationService _authorizationService;
 
+    public UserRole? AuthenticatedRole { get; private set; }
+
     public AuthorizationDialog(AuthorizationService authorizationService)
     {
         InitializeComponent();
@@ -16,10 +18,13 @@ public partial class AuthorizationDialog : Window
 
     private void AuthorizeButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_authorizationService.ValidateCredentials(
-                UsernameTextBox.Text.Trim(),
-                PasswordBox.Password))
+        var role = _authorizationService.ValidateCredentials(
+            UsernameTextBox.Text.Trim(),
+            PasswordBox.Password);
+
+        if (role is not null)
         {
+            AuthenticatedRole = role;
             DialogResult = true;
             return;
         }

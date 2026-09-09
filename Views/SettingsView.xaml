@@ -86,8 +86,11 @@
                         <TextBlock Style="{StaticResource FieldLabel}" Text="Recipe:" Width="55"/>
                         <ComboBox Width="250" ItemsSource="{Binding Recipes}"
                                   DisplayMemberPath="RecipeName" SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
-                                  IsEnabled="{Binding IsEditMode}"
+                              IsEnabled="True"
                                   FontSize="14" Padding="6,4"/>
+                        <Button Content="SELECT" Command="{Binding SelectRecipeCommand}"
+                            Margin="8,0,0,0" Padding="14,4"
+                            VerticalAlignment="Center" Cursor="Hand"/>
                     </StackPanel>
 
                     <Grid>
@@ -173,6 +176,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                         <Button Content="Edit" Command="{Binding EditCommand}"
                                 Visibility="{Binding IsNotEditMode, Converter={StaticResource BoolToVis}}"
+                            IsEnabled="{Binding CanAttemptSupervisorEdit}"
                                 Background="#1565C0" Foreground="White" FontSize="14" FontWeight="SemiBold"
                                 Padding="24,10" Margin="0,0,12,0" BorderThickness="0" Cursor="Hand" Width="110">
                             <Button.Template>
