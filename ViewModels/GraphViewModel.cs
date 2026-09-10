@@ -17,17 +17,22 @@ namespace TempControl.ViewModels;
 
 public partial class GraphViewModel : ObservableObject
 {
+    public sealed record GraphStatsRow(string Description, DateTime Timestamp, double Value, double Min, double Max, double Average);
+    public sealed record GraphCursorValue(double Value, DateTime Timestamp);
+
     public PlcDataStore DataStore { get; }
     private readonly DatabaseService _dbService;
     private readonly ObservableCollection<DateTimePoint> _zone1TemperaturePoints = [];
     private readonly ObservableCollection<DateTimePoint> _zone2TemperaturePoints = [];
     private readonly ObservableCollection<DateTimePoint> _jobPvPoints = [];
     public ISeries[] Series { get; }
+    public ObservableCollection<GraphStatsRow> GraphStats { get; } = [];
 
     public Axis[] XAxes { get; }
     public Axis[] YAxes { get; }
 
     [ObservableProperty] private bool _hasData;
+    [ObservableProperty] private bool _isValuesPanelOpen;
     [ObservableProperty] private string _selectedZoom = "30m";
     [ObservableProperty] private double _scrollPosition;
     [ObservableProperty] private double _scrollMaximum = 1;
@@ -194,6 +199,61 @@ public partial class GraphViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ToggleValuesPanel()
+    {
+        IsValuesPanelOpen = !IsValuesPanelOpen;
+    }
+
+    public DateTime? UpdateCursor(DateTime timestamp)
+    {
+        var nearestTimestamp = _zone1TemperaturePoints
+            .Concat(_zone2TemperaturePoints)
+            .Concat(_jobPvPoints)
+            .Select(point => point.DateTime)
+            .OrderBy(point => Math.Abs((point - timestamp).Ticks))
+            .FirstOrDefault();
+
+        if (nearestTimestamp == default)
+            return null;
+
+        RefreshStats(nearestTimestamp);
+        return nearestTimestamp;
+    }
+
+    public DateTime? UpdateCursorFromPosition(double position, double width)
+    {
+        var minLimit = XAxes[0].MinLimit;
+        var maxLimit = XAxes[0].MaxLimit;
+
+        if (width <= 0 || !minLimit.HasValue || !maxLimit.HasValue
+            || !double.IsFinite(minLimit.Value) || !double.IsFinite(maxLimit.Value))
+            return null;
+
+        var ratio = Math.Clamp(position / width, 0, 1);
+        var ticks = minLimit.Value + ((maxLimit.Value - minLimit.Value) * ratio);
+        return UpdateCursor(new DateTime(Convert.ToInt64(ticks)));
+    }
+
+    public GraphCursorValue[] GetCursorValues(DateTime timestamp)
+        =>
+        [
+            GetNearestCursorValue(_zone1TemperaturePoints, timestamp),
+            GetNearestCursorValue(_zone2TemperaturePoints, timestamp),
+            GetNearestCursorValue(_jobPvPoints, timestamp)
+        ];
+
+    private static GraphCursorValue GetNearestCursorValue(
+        ObservableCollection<DateTimePoint> points,
+        DateTime timestamp)
+    {
+        var point = points
+            .OrderBy(candidate => Math.Abs((candidate.DateTime - timestamp).Ticks))
+            .First();
+
+        return new GraphCursorValue(point.Value ?? 0d, point.DateTime);
+    }
+
+    [RelayCommand]
     private void LoadHistory()
     {
         if (SelectedMode != "History")
@@ -332,9 +392,9 @@ public partial class GraphViewModel : ObservableObject
         SeparatorsPaint      = new SolidColorPaint(SKColors.White.WithAlpha(40)),
         SubseparatorsPaint   = new SolidColorPaint(SKColors.White.WithAlpha(15)),
         SubseparatorsCount   = 4,
-        MinStep              = 10,
-        MinLimit             = 20,
-        MaxLimit             = 200
+        MinStep              = 50,
+        MinLimit             = 0,
+        MaxLimit             = 250
     }
 ];
 
@@ -403,6 +463,7 @@ public partial class GraphViewModel : ObservableObject
         _zone1TemperaturePoints.Clear();
         _zone2TemperaturePoints.Clear();
         _jobPvPoints.Clear();
+        GraphStats.Clear();
 
         foreach (var (
             timestamp,
@@ -421,6 +482,45 @@ public partial class GraphViewModel : ObservableObject
         }
 
         HasData = history.Count > 0;
+        RefreshStats();
+    }
+
+    private void RefreshStats(DateTime? selectedTimestamp = null)
+    {
+        GraphStats.Clear();
+
+        AddStatsRow("Zone 1 Temperature", _zone1TemperaturePoints, selectedTimestamp);
+        AddStatsRow("Zone 2 Temperature", _zone2TemperaturePoints, selectedTimestamp);
+        AddStatsRow("Job PV", _jobPvPoints, selectedTimestamp);
+    }
+
+    private void AddStatsRow(
+        string description,
+        ObservableCollection<DateTimePoint> points,
+        DateTime? selectedTimestamp = null)
+    {
+        if (points.Count == 0)
+            return;
+
+        var values = points
+            .Select(point => point.Value ?? 0d)
+            .ToList();
+
+        var selectedPoint = selectedTimestamp is null
+            ? points[^1]
+            : points
+                .OrderBy(point => Math.Abs((point.DateTime - selectedTimestamp.Value).Ticks))
+                .First();
+        var selectedValue = selectedPoint.Value ?? 0d;
+        var timestamp = selectedPoint.DateTime;
+
+        GraphStats.Add(new GraphStatsRow(
+            description,
+            timestamp,
+            selectedValue,
+            values.Min(),
+            values.Max(),
+            values.Average()));
     }
 
     private bool TryGetHistoryRange(out DateTime from, out DateTime to, out string errorMessage)

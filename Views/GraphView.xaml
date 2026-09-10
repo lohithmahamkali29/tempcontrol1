@@ -60,196 +60,372 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-        <!-- Row 0: Title, legend, and overlay controls -->
-        <Grid Grid.Row="0" Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="0" Text="Temperature Trend"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Foreground="White"
-                       VerticalAlignment="Center"/>
-
-            <StackPanel Grid.Column="1" Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center">
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Rectangle Width="22"
-                       Height="3"
-                       Fill="#FF4444"
-                       RadiusX="1"
-                       RadiusY="1"
-                       VerticalAlignment="Center"
-                       Margin="0,0,6,0"/>
-                    <TextBlock Text="Zone 1 Temperature"
-                       Foreground="#7A9BBF"
-                       FontSize="12"
-                       VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Rectangle Width="22"
-                       Height="3"
-                       Fill="#22BB55"
-                       RadiusX="1"
-                       RadiusY="1"
-                       VerticalAlignment="Center"
-                       Margin="0,0,6,0"/>
-                    <TextBlock Text="Zone 2 Temperature"
-                       Foreground="#7A9BBF"
-                       FontSize="12"
-                       VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="22"
-                       Height="3"
-                       Fill="#4DA6FF"
-                       RadiusX="1"
-                       RadiusY="1"
-                       VerticalAlignment="Center"
-                       Margin="0,0,6,0"/>
-                    <TextBlock Text="JobPv"
-                       Foreground="#7A9BBF"
-                       FontSize="12"
-                       VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <ToggleButton x:Name="ControlsButton" Content="Controls"
-                              Foreground="White" Background="#1E3A5F"
-                              BorderBrush="#3C638E" BorderThickness="1"
-                              FontSize="12" FontWeight="SemiBold"
-                              Padding="12,5" Margin="16,0,0,0"
-                              Cursor="Hand"/>
-            </StackPanel>
-        </Grid>
-
-        <Popup PlacementTarget="{Binding ElementName=ControlsButton}"
-               Placement="Bottom"
-               HorizontalOffset="0"
-               VerticalOffset="6"
-               StaysOpen="False"
-               AllowsTransparency="True"
-               IsOpen="{Binding IsChecked, ElementName=ControlsButton, Mode=TwoWay}">
-            <Border Width="360" Padding="16" Background="#0D1B2A"
-                    BorderBrush="#3C638E" BorderThickness="1" CornerRadius="6">
-                <StackPanel>
-                    <TextBlock Text="GRAPH CONTROLS" Foreground="White"
-                               FontSize="13" FontWeight="Bold" Margin="0,0,0,14"/>
-
-                    <TextBlock Text="MODE" Foreground="#7A9BBF" FontSize="11"
-                               FontWeight="SemiBold" Margin="0,0,0,5"/>
-                    <StackPanel Orientation="Horizontal" Margin="-3,0,0,12">
-                        <RadioButton Content="Live" Style="{StaticResource ZoomBtnStyle}"
-                                     IsChecked="{Binding IsLiveMode, Mode=OneWay}"
-                                     Command="{Binding SetModeCommand}" CommandParameter="Live"/>
-                        <RadioButton Content="History" Style="{StaticResource ZoomBtnStyle}"
-                                     IsChecked="{Binding IsHistoryMode, Mode=OneWay}"
-                                     Command="{Binding SetModeCommand}" CommandParameter="History"/>
-                    </StackPanel>
-
-                    <StackPanel Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="ZOOM" Foreground="#7A9BBF" FontSize="11"
-                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <StackPanel Orientation="Horizontal" Margin="-3,0,0,0">
-                            <RadioButton Content="5m" Style="{StaticResource ZoomBtnStyle}"
-                                         Command="{Binding SetZoomCommand}" CommandParameter="5m"/>
-                            <RadioButton Content="15m" Style="{StaticResource ZoomBtnStyle}"
-                                         Command="{Binding SetZoomCommand}" CommandParameter="15m"/>
-                            <RadioButton Content="30m" Style="{StaticResource ZoomBtnStyle}" IsChecked="True"
-                                         Command="{Binding SetZoomCommand}" CommandParameter="30m"/>
-                            <RadioButton Content="1h" Style="{StaticResource ZoomBtnStyle}"
-                                         Command="{Binding SetZoomCommand}" CommandParameter="1h"/>
-                            <RadioButton Content="All" Style="{StaticResource ZoomBtnStyle}"
-                                         Command="{Binding SetZoomCommand}" CommandParameter="All"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <StackPanel Visibility="{Binding IsHistoryMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="FROM" Foreground="#7A9BBF" FontSize="11"
-                                   FontWeight="SemiBold" Margin="0,12,0,5"/>
-                        <StackPanel Orientation="Horizontal">
-                            <DatePicker SelectedDate="{Binding HistoryFromDate, Mode=TwoWay}"
-                                        Margin="0,0,8,0"/>
-                            <TextBox Width="60" Text="{Binding HistoryFromTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     VerticalContentAlignment="Center"/>
-                        </StackPanel>
-
-                        <TextBlock Text="TO" Foreground="#7A9BBF" FontSize="11"
-                                   FontWeight="SemiBold" Margin="0,12,0,5"/>
-                        <StackPanel Orientation="Horizontal">
-                            <DatePicker SelectedDate="{Binding HistoryToDate, Mode=TwoWay}"
-                                        Margin="0,0,8,0"/>
-                            <TextBox Width="60" Text="{Binding HistoryToTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     VerticalContentAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                            <Button Content="Load History" Command="{Binding LoadHistoryCommand}"
-                                    Padding="10,5" Margin="0,0,8,0" Cursor="Hand"/>
-                            <Button Content="Export PDF" Command="{Binding ExportPdfCommand}"
-                                    Padding="10,5" Cursor="Hand"/>
-                        </StackPanel>
-
-                        <TextBlock Text="Use HH:mm format" Foreground="#7A9BBF"
-                                   FontSize="12" Margin="0,12,0,0"/>
-                        <TextBlock Text="{Binding HistoryStatusMessage}" Foreground="#FFB347"
-                                   FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Popup>
-
-        <!-- Row 1: Chart -->
-        <Border Grid.Row="1"
-        Grid.Column="0"
-        HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        MinHeight="420"
-        Background="#071020"
-        CornerRadius="8"
-        BorderBrush="#1E3A5F"
-        BorderThickness="1">
-
-            <lvc:CartesianChart
-        Series="{Binding Series}"
-        XAxes="{Binding XAxes}"
-        YAxes="{Binding YAxes}"
-        HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        TooltipPosition="Top"
-        AnimationsSpeed="00:00:00.100"
-        ZoomMode="Both"
-        Background="Transparent"/>
-
-        </Border>
-
-        <!-- Row 2: Horizontal scrollbar — drag left to see historical data, right = live -->
-        <Border Grid.Row="2" Background="#071020" CornerRadius="4"
-                BorderBrush="#1E3A5F" BorderThickness="1" Margin="0,8,0,0" Padding="4,4">
-            <Grid>
+            <!-- Row 0: Title, legend, and overlay controls -->
+            <Grid Grid.Row="0" Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ScrollBar Grid.Column="0" Orientation="Horizontal" Height="14"
-                           Minimum="0"
-                           Maximum="{Binding ScrollMaximum}"
-                           Value="{Binding ScrollPosition, Mode=TwoWay}"
-                           ViewportSize="{Binding ScrollViewport}"
+
+                <TextBlock Grid.Column="0" Text="Temperature Trend"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="White"
                            VerticalAlignment="Center"/>
-                <!-- LIVE badge — shown when scrollbar is at right end -->
-                <Border Grid.Column="1" Background="#22BB55" CornerRadius="3"
-                        Padding="8,2" Margin="8,0,0,0" VerticalAlignment="Center"
-                        Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="● LIVE" Foreground="White" FontSize="10" FontWeight="Bold"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Rectangle Width="22"
+                           Height="3"
+                           Fill="#FF4444"
+                           RadiusX="1"
+                           RadiusY="1"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                        <TextBlock Text="Zone 1 Temperature"
+                           Foreground="#7A9BBF"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Rectangle Width="22"
+                           Height="3"
+                           Fill="#22BB55"
+                           RadiusX="1"
+                           RadiusY="1"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                        <TextBlock Text="Zone 2 Temperature"
+                           Foreground="#7A9BBF"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="22"
+                           Height="3"
+                           Fill="#4DA6FF"
+                           RadiusX="1"
+                           RadiusY="1"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                        <TextBlock Text="JobPv"
+                           Foreground="#7A9BBF"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <ToggleButton x:Name="ControlsButton" Content="Controls"
+                                  Foreground="White" Background="#1E3A5F"
+                                  BorderBrush="#3C638E" BorderThickness="1"
+                                  FontSize="12" FontWeight="SemiBold"
+                                  Padding="12,5" Margin="16,0,0,0"
+                                  Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+
+            <Popup PlacementTarget="{Binding ElementName=ControlsButton}"
+                   Placement="Bottom"
+                   HorizontalOffset="0"
+                   VerticalOffset="6"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   IsOpen="{Binding IsChecked, ElementName=ControlsButton, Mode=TwoWay}">
+                <Border Width="360" Padding="16" Background="#0D1B2A"
+                        BorderBrush="#3C638E" BorderThickness="1" CornerRadius="6">
+                    <StackPanel>
+                        <TextBlock Text="GRAPH CONTROLS" Foreground="White"
+                                   FontSize="13" FontWeight="Bold" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="MODE" Foreground="#7A9BBF" FontSize="11"
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal" Margin="-3,0,0,12">
+                            <RadioButton Content="Live" Style="{StaticResource ZoomBtnStyle}"
+                                         IsChecked="{Binding IsLiveMode, Mode=OneWay}"
+                                         Command="{Binding SetModeCommand}" CommandParameter="Live"/>
+                            <RadioButton Content="History" Style="{StaticResource ZoomBtnStyle}"
+                                         IsChecked="{Binding IsHistoryMode, Mode=OneWay}"
+                                         Command="{Binding SetModeCommand}" CommandParameter="History"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="ZOOM" Foreground="#7A9BBF" FontSize="11"
+                                       FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <StackPanel Orientation="Horizontal" Margin="-3,0,0,0">
+                                <RadioButton Content="5m" Style="{StaticResource ZoomBtnStyle}"
+                                             Command="{Binding SetZoomCommand}" CommandParameter="5m"/>
+                                <RadioButton Content="15m" Style="{StaticResource ZoomBtnStyle}"
+                                             Command="{Binding SetZoomCommand}" CommandParameter="15m"/>
+                                <RadioButton Content="30m" Style="{StaticResource ZoomBtnStyle}" IsChecked="True"
+                                             Command="{Binding SetZoomCommand}" CommandParameter="30m"/>
+                                <RadioButton Content="1h" Style="{StaticResource ZoomBtnStyle}"
+                                             Command="{Binding SetZoomCommand}" CommandParameter="1h"/>
+                                <RadioButton Content="All" Style="{StaticResource ZoomBtnStyle}"
+                                             Command="{Binding SetZoomCommand}" CommandParameter="All"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsHistoryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="FROM" Foreground="#7A9BBF" FontSize="11"
+                                       FontWeight="SemiBold" Margin="0,12,0,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <DatePicker SelectedDate="{Binding HistoryFromDate, Mode=TwoWay}"
+                                            Margin="0,0,8,0"/>
+                                <TextBox Width="60" Text="{Binding HistoryFromTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="TO" Foreground="#7A9BBF" FontSize="11"
+                                       FontWeight="SemiBold" Margin="0,12,0,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <DatePicker SelectedDate="{Binding HistoryToDate, Mode=TwoWay}"
+                                            Margin="0,0,8,0"/>
+                                <TextBox Width="60" Text="{Binding HistoryToTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <Button Content="Load History" Command="{Binding LoadHistoryCommand}"
+                                        Padding="10,5" Margin="0,0,8,0" Cursor="Hand"/>
+                                <Button Content="Export PDF" Command="{Binding ExportPdfCommand}"
+                                        Padding="10,5" Cursor="Hand"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Use HH:mm format" Foreground="#7A9BBF"
+                                       FontSize="12" Margin="0,12,0,0"/>
+                            <TextBlock Text="{Binding HistoryStatusMessage}" Foreground="#FFB347"
+                                       FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Popup>
+
+            <!-- Row 1: Chart with collapsible statistics drawer -->
+            <Grid Grid.Row="1">
+                <Border x:Name="GraphChartHost"
+                    HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        MinHeight="420"
+                        Background="#071020"
+                        CornerRadius="8"
+                        BorderBrush="#1E3A5F"
+                    BorderThickness="1"
+                    MouseMove="GraphChartHost_MouseMove"
+                    MouseLeave="GraphChartHost_MouseLeave">
+                    <lvc:CartesianChart
+                        Series="{Binding Series}"
+                        XAxes="{Binding XAxes}"
+                        YAxes="{Binding YAxes}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        TooltipPosition="Top"
+                        AnimationsSpeed="00:00:00.100"
+                        ZoomMode="X"
+                        Background="Transparent"/>
+                </Border>
+
+                    <Canvas IsHitTestVisible="False"
+                            Panel.ZIndex="5"
+                            Margin="1">
+                        <Line x:Name="GraphRulerLine"
+                              Visibility="Collapsed"
+                              Stroke="#FFD166"
+                              StrokeThickness="2"
+                              StrokeDashArray="4,3"
+                              Y1="0"
+                              Y2="420"/>
+                        <Ellipse x:Name="Zone1CursorPoint"
+                                 Width="9"
+                                 Height="9"
+                                 Fill="#FF4444"
+                                 Stroke="White"
+                                 StrokeThickness="1"
+                                 Visibility="Collapsed"/>
+                        <Ellipse x:Name="Zone2CursorPoint"
+                                 Width="9"
+                                 Height="9"
+                                 Fill="#22BB55"
+                                 Stroke="White"
+                                 StrokeThickness="1"
+                                 Visibility="Collapsed"/>
+                        <Ellipse x:Name="JobPvCursorPoint"
+                                 Width="9"
+                                 Height="9"
+                                 Fill="#4DA6FF"
+                                 Stroke="White"
+                                 StrokeThickness="1"
+                                 Visibility="Collapsed"/>
+                        <Border x:Name="Zone1CursorLabel"
+                                Width="72"
+                                Height="22"
+                                Background="#D92E2E"
+                                CornerRadius="3"
+                                Padding="5,2"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="Zone1CursorText"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       TextAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Zone2CursorLabel"
+                                Width="72"
+                                Height="22"
+                                Background="#168A43"
+                                CornerRadius="3"
+                                Padding="5,2"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="Zone2CursorText"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       TextAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="JobPvCursorLabel"
+                                Width="72"
+                                Height="22"
+                                Background="#2675B8"
+                                CornerRadius="3"
+                                Padding="5,2"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="JobPvCursorText"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       TextAlignment="Center"/>
+                        </Border>
+                    </Canvas>
+
+                <Border Width="500"
+                        MaxHeight="220"
+                        Margin="16,0,16,38"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Background="#0F1F31"
+                        BorderBrush="#36577A"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Opacity="0"
+                        IsHitTestVisible="False"
+                        Panel.ZIndex="10">
+                    <Border.RenderTransform>
+                        <TranslateTransform Y="220"/>
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Opacity" Value="0"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsValuesPanelOpen}" Value="True">
+                                    <Setter Property="IsHitTestVisible" Value="True"/>
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.22"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.22" DecelerationRatio="0.7"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="220" Duration="0:0:0.18" AccelerationRatio="0.7"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Grid Margin="10,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.7*"/>
+                                <ColumnDefinition Width="1.4*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Description" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock Grid.Column="1" Text="Time / Date" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock Grid.Column="2" Text="Value" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="Min" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text="Max" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                            <TextBlock Grid.Column="5" Text="Avg" Foreground="#D0DBF0" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                        </Grid>
+
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding GraphStats}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.7*"/>
+                                            <ColumnDefinition Width="1.4*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Description}" Foreground="White" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Timestamp, StringFormat='dd MMM HH:mm:ss'}" Foreground="#AFC2D9" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Value, StringFormat='0'}" Foreground="White" FontSize="11" TextAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Min, StringFormat='0'}" Foreground="#AFC2D9" FontSize="11" TextAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding Max, StringFormat='0'}" Foreground="#AFC2D9" FontSize="11" TextAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding Average, StringFormat='0'}" Foreground="#AFC2D9" FontSize="11" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </Border>
             </Grid>
-        </Border>
+
+            <!-- Row 2: Horizontal scrollbar — drag left to see historical data, right = live -->
+            <Border Grid.Row="2" Background="#071020" CornerRadius="4"
+                    BorderBrush="#1E3A5F" BorderThickness="1" Margin="0,8,0,0" Padding="4,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ScrollBar Grid.Column="0" Orientation="Horizontal" Height="14"
+                               Minimum="0"
+                               Maximum="{Binding ScrollMaximum}"
+                               Value="{Binding ScrollPosition, Mode=TwoWay}"
+                               ViewportSize="{Binding ScrollViewport}"
+                               VerticalAlignment="Center"/>
+                    <Button Grid.Column="1"
+                            Content="VALUES"
+                            Command="{Binding ToggleValuesPanelCommand}"
+                            Margin="8,0,0,0"
+                            Padding="10,3"
+                            FontSize="11"
+                            FontWeight="SemiBold"
+                            Foreground="White"
+                            Background="#1E3A5F"
+                            BorderBrush="#3C638E"
+                            BorderThickness="1"
+                            Cursor="Hand"/>
+                    <Border Grid.Column="2" Background="#22BB55" CornerRadius="3"
+                            Padding="8,2" Margin="8,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding IsLiveMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="● LIVE" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
     </ScrollViewer>
 </UserControl>

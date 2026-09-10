@@ -25,7 +25,7 @@
                        FontSize="20" FontWeight="Bold" Foreground="#1A237E"
                        Margin="0,0,0,18"/>
             <TextBlock Grid.Row="1" Text="Username" VerticalAlignment="Center" Margin="0,0,14,10"/>
-            <TextBox x:Name="UsernameTextBox" Grid.Row="1" Grid.Column="1"
+                 <TextBox x:Name="UsernameTextBox" Grid.Row="1" Grid.Column="1"
                      Margin="0,0,0,10" Padding="8"/>
             <TextBlock Grid.Row="2" Text="Password" VerticalAlignment="Center" Margin="0,0,14,10"/>
             <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="1"
