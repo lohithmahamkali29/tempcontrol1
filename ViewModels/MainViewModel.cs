@@ -53,7 +53,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public MainViewModel(AuthorizationService authorizationService)
     {
-        DataStore = new PlcDataStore();
+        DataStore = new PlcDataStore(authorizationService.Configuration);
 
         // Restore last-known register values before any VM snapshots from the store
         PlcStateCache.Load(DataStore);

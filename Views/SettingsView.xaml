@@ -86,7 +86,7 @@
                         <TextBlock Style="{StaticResource FieldLabel}" Text="Recipe:" Width="55"/>
                         <ComboBox Width="250" ItemsSource="{Binding Recipes}"
                                   DisplayMemberPath="RecipeName" SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
-                              IsEnabled="True"
+                              IsEnabled="True" DropDownOpened="RecipeComboBox_DropDownOpened"
                                   FontSize="14" Padding="6,4"/>
                         <Button Content="SELECT" Command="{Binding SelectRecipeCommand}"
                             Margin="8,0,0,0" Padding="14,4"
@@ -101,9 +101,6 @@
                                 <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -129,29 +126,11 @@
                         <TextBox   Grid.Row="2" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step2SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBox   Grid.Row="2" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step2RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <!-- Step 3 -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 3" VerticalAlignment="Center"/>
-                        <TextBox   Grid.Row="3" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="3" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="3" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step3RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
-                        <!-- Step 4 -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 4" VerticalAlignment="Center"/>
-                        <TextBox   Grid.Row="4" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="4" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="4" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step4RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
-                        <!-- Step 5 -->
-                        <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource StepLabel}" Text="Step 5" VerticalAlignment="Center"/>
-                        <TextBox   Grid.Row="5" Grid.Column="1" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5Zone1Temp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="5" Grid.Column="2" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5SoakTime,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox   Grid.Row="5" Grid.Column="3" Style="{StaticResource StepInput}" IsEnabled="{Binding IsEditMode}" Text="{Binding Step5RampRate,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
                         <!-- Separator -->
-                        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" Height="1" Background="#DCE0E6" Margin="0,6" />
+                        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4" Height="1" Background="#DCE0E6" Margin="0,6" />
 
                         <!-- Zone 1 Safety / Zone 2 Safety / Blower 1 / Blower 2 — horizontal -->
-                        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4"
+                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4"
                                     Orientation="Horizontal" Margin="0,6,0,0">
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Style="{StaticResource StepLabel}" Text="Zone 1 and 2 Safety" Margin="0,0,0,4"/>
@@ -200,10 +179,6 @@
                             </Button.Template>
                         </Button>
                     </StackPanel>
-
-                    <!-- Status message -->
-                    <TextBlock Text="{Binding StatusMessage}" Foreground="#388E3C" FontSize="12"
-                               Margin="0,8,0,0" HorizontalAlignment="Center"/>
 
                 </StackPanel>
             </Border>

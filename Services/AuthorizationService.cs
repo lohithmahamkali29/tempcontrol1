@@ -12,11 +12,8 @@ public enum UserRole
 
 public sealed class AuthorizationService
 {
-    private const string OperatorUsername = "operator";
-    private const string OperatorPassword = "operator123";
-    private const string SupervisorUsername = "supervisor";
-    private const string SupervisorPassword = "supervisor123";
-    private static readonly TimeSpan SessionDuration = TimeSpan.FromMinutes(2);
+    public ApplicationConfiguration Configuration { get; }
+    private readonly AuthorizationConfiguration _configuration;
 
     private readonly DispatcherTimer _sessionTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private DateTime? _sessionExpiresAtUtc;
@@ -29,6 +26,8 @@ public sealed class AuthorizationService
 
     public AuthorizationService()
     {
+        Configuration = ApplicationConfiguration.Load();
+        _configuration = Configuration.Authorization;
         _sessionTimer.Tick += (_, _) =>
         {
             if (HasExpiredSession)
@@ -39,14 +38,14 @@ public sealed class AuthorizationService
 
     public UserRole? ValidateCredentials(string username, string password)
     {
-        if (string.Equals(username, OperatorUsername, StringComparison.Ordinal)
-            && string.Equals(password, OperatorPassword, StringComparison.Ordinal))
+        if (string.Equals(username, _configuration.Operator.Username, StringComparison.Ordinal)
+            && string.Equals(password, _configuration.Operator.Password, StringComparison.Ordinal))
         {
             return UserRole.Operator;
         }
 
-        if (string.Equals(username, SupervisorUsername, StringComparison.Ordinal)
-            && string.Equals(password, SupervisorPassword, StringComparison.Ordinal))
+        if (string.Equals(username, _configuration.Supervisor.Username, StringComparison.Ordinal)
+            && string.Equals(password, _configuration.Supervisor.Password, StringComparison.Ordinal))
         {
             return UserRole.Supervisor;
         }
@@ -67,7 +66,7 @@ public sealed class AuthorizationService
             return null;
 
         CurrentRole = dialog.AuthenticatedRole;
-        _sessionExpiresAtUtc = DateTime.UtcNow.Add(SessionDuration);
+        _sessionExpiresAtUtc = DateTime.UtcNow.Add(_configuration.SessionDuration);
         CurrentRoleChanged?.Invoke(this, EventArgs.Empty);
         return CurrentRole;
     }
@@ -81,4 +80,5 @@ public sealed class AuthorizationService
         _sessionExpiresAtUtc = null;
         CurrentRoleChanged?.Invoke(this, EventArgs.Empty);
     }
+
 }

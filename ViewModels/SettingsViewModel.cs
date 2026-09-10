@@ -93,7 +93,21 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnSelectedRecipeChanged(Recipe? value)
     {
         if (value is not null && !_loadingRecipe)
+        {
             LoadRecipeValues(value);
+            StatusMessage = $"Recipe previewed: {value.RecipeName}. Press SELECT to apply it.";
+        }
+    }
+
+    public bool AuthorizeRecipeSelection()
+    {
+        if (_authorizationService.HasActiveSession
+            && _authorizationService.CurrentRole is UserRole.Operator or UserRole.Supervisor)
+            return true;
+
+        var authenticatedRole = _authorizationService.RequestAuthorization("Recipe Selection Authorization Required");
+        return authenticatedRole is UserRole.Operator or UserRole.Supervisor
+            && _authorizationService.HasActiveSession;
     }
 
     private void SnapshotFromDataStore()
@@ -210,11 +224,12 @@ public partial class SettingsViewModel : ObservableObject
         if (SelectedRecipe is null || DataStore.IsProcessRunning)
             return;
 
-        if (_authorizationService.CurrentRole is null
+        if (!_authorizationService.HasActiveSession
             && _authorizationService.RequestAuthorization() is null)
             return;
 
-        if (_authorizationService.CurrentRole is not UserRole.Operator
+        if (!_authorizationService.HasActiveSession
+            || _authorizationService.CurrentRole is not UserRole.Operator
             and not UserRole.Supervisor)
             return;
 
@@ -280,11 +295,10 @@ public partial class SettingsViewModel : ObservableObject
             (318, Step5Zone2Temp,     "Step 5 Zone 2 Temp"),
             (319, Step5SoakTime,      "Step 5 Soak Time"),
             (320, Step5RampRate,      "Step 5 Ramp Rate"),
-            (321, ProcessZone1Safety, "Zone 1 Safety"),
-            (322, ProcessZone2Safety, "Zone 2 Safety"),
+            (DataStore.Zone1SafetyTemperatureAddress, ProcessZone1Safety, "Zone 1 Safety"),
+            (DataStore.Zone2SafetyTemperatureAddress, ProcessZone2Safety, "Zone 2 Safety"),
             (323, ProcessBlower1,     "Blower 1"),
             (324, ProcessBlower2,     "Blower 2"),
-            (329, SelectedRecipe.RecipeMode, "Recipe Mode / Recipe ID"),
         };
 
         var failedWrites = new List<string>();
@@ -346,25 +360,72 @@ public partial class SettingsViewModel : ObservableObject
 
     private async Task ApplySelectedRecipeAsync(Recipe recipe)
     {
-        if (_authorizationService.CurrentRole is not UserRole.Operator
+        if (!_authorizationService.HasActiveSession
+            || _authorizationService.CurrentRole is not UserRole.Operator
             and not UserRole.Supervisor)
             return;
 
         if (DataStore.IsProcessRunning)
             return;
 
-        if (!await _manualControlService.WriteRegisterAsync(329, recipe.RecipeMode))
+        var plc = DataStore.SlaveConfigs.FirstOrDefault(slave => slave.SlaveId == 4);
+        if (plc?.IsConnected != true)
         {
-            StatusMessage = $"Recipe selection failed: D329 was not written for {recipe.RecipeName}.";
             MessageBox.Show(
-                $"Could not write D329 for recipe '{recipe.RecipeName}'. The PLC selection was not applied.",
-                "Recipe Selection Failed",
+                "Cannot set the process sequence because the PLC is not connected.\nPlease check the PLC connection and try again.",
+                "PLC Disconnected",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var writes = new (int Address, double Value, string Label)[]
+        {
+            (301, recipe.Step1Zone1Temp, "Step 1 Zone 1 Temp"),
+            (302, recipe.Step1Zone2Temp, "Step 1 Zone 2 Temp"),
+            (303, recipe.Step1SoakTime, "Step 1 Soak Time"),
+            (304, recipe.Step1RampRate, "Step 1 Ramp Rate"),
+            (305, recipe.Step2Zone1Temp, "Step 2 Zone 1 Temp"),
+            (306, recipe.Step2Zone2Temp, "Step 2 Zone 2 Temp"),
+            (307, recipe.Step2SoakTime, "Step 2 Soak Time"),
+            (308, recipe.Step2RampRate, "Step 2 Ramp Rate"),
+            (DataStore.Zone1SafetyTemperatureAddress, recipe.ProcessZone1Safety, "Zone 1 Safety"),
+            (DataStore.Zone2SafetyTemperatureAddress, recipe.ProcessZone2Safety, "Zone 2 Safety"),
+            (323, recipe.ProcessBlower1, "Blower 1"),
+            (324, recipe.ProcessBlower2, "Blower 2")
+        };
+
+        var failedWrites = new List<string>();
+        foreach (var (address, value, label) in writes)
+        {
+            Trace($"Writing {label}: D{address} = {value}");
+            if (!await _manualControlService.WriteRegisterAsync(address, value))
+                failedWrites.Add(label);
+        }
+
+        if (failedWrites.Count > 0)
+        {
+            MessageBox.Show(
+                "The PLC is connected, but one or more process parameters could not be written.\nPlease check the PLC communication and try again.",
+                "Recipe Set Failed",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             return;
         }
 
-        StatusMessage = $"Recipe selected: {recipe.RecipeName}";
+        PlcStateCache.Save(DataStore);
+        StatusMessage = $"Recipe set: {recipe.RecipeName}";
+        MessageBox.Show(
+            $"RECIPE SET SUCCESSFULLY\n\n" +
+            $"Sequence: {recipe.RecipeName}\n" +
+            $"Temperature: {recipe.Step1Zone1Temp:F0} °C\n" +
+            $"Safety Temperature: {recipe.ProcessZone1Safety:F0} °C\n" +
+            $"Soak Time: {recipe.Step1SoakTime / 60.0:F0} Hours\n" +
+            $"Ramp Time: {recipe.Step1RampRate:F0} Minutes\n\n" +
+            "This sequence is now set for the process.",
+            "Recipe Set Successfully",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     private void OnCurrentRoleChanged(object? sender, EventArgs e)

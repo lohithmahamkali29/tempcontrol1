@@ -181,8 +181,16 @@
 
                 <Border Grid.Column="0" Style="{StaticResource ZoneCardPV}" Width="550" HorizontalAlignment="Right">
                     <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
-                        <TextBlock Text="ZONE 1" FontSize="30" FontWeight="Bold"
-                                   Foreground="#1A237E" HorizontalAlignment="Center" Margin="0,0,0,28"/>
+                        <Grid Margin="0,0,0,28">
+                            <TextBlock Text="ZONE 1" FontSize="30" FontWeight="Bold"
+                                       Foreground="#1A237E" HorizontalAlignment="Center"/>
+                            <StackPanel HorizontalAlignment="Right" Margin="0,0,22,0">
+                                <TextBlock Text="Safety" FontSize="22" FontWeight="SemiBold"
+                                           Foreground="#1A237E" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding DataStore.ProcessZone1Safety, StringFormat={}{0:F1} °C, Mode=OneWay}"
+                                          FontWeight="SemiBold" FontSize="20" Foreground=" #FFA500" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -230,8 +238,16 @@
 
                 <Border Grid.Column="1" Style="{StaticResource ZoneCardPV}" Width="550" HorizontalAlignment="Left">
                     <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
-                        <TextBlock Text="ZONE 2" FontSize="30" FontWeight="Bold"
-                                   Foreground="#1A237E" HorizontalAlignment="Center" Margin="0,0,0,28"/>
+                        <Grid Margin="0,0,0,28">
+                            <TextBlock Text="ZONE 2" FontSize="30" FontWeight="Bold"
+                                       Foreground="#1A237E" HorizontalAlignment="Center"/>
+                            <StackPanel HorizontalAlignment="Right" Margin="0,0,22,0">
+                                <TextBlock Text="Safety" FontSize="22" FontWeight="SemiBold"
+                Foreground="#1A237E" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding DataStore.ProcessZone2Safety, StringFormat={}{0:F1} °C, Mode=OneWay}"
+               FontWeight="SemiBold" FontSize="20" Foreground=" #FFA500" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
 
                         <Grid>
                             <Grid.ColumnDefinitions>

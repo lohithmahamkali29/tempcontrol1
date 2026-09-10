@@ -8,11 +8,22 @@ namespace TempControl
     /// </summary>
     public partial class App : Application
     {
-        public AuthorizationService AuthorizationService { get; } = new();
+        public AuthorizationService AuthorizationService { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            try
+            {
+                AuthorizationService = new AuthorizationService();
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Application Configuration Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(-1);
+                return;
+            }
 
             var mainWindow = new MainWindow(AuthorizationService);
             MainWindow = mainWindow;

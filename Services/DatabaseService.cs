@@ -163,7 +163,7 @@ public sealed class DatabaseService : IDisposable
 
         EnsureColumnExists("TemperatureLog", "Zone2JobPv", "REAL NOT NULL DEFAULT 0");
 
-        SeedRecipesIfEmpty();
+        EnsurePredefinedRecipes();
 
         EnsureColumnExists("TemperatureLog", "Zone2JobPv", "REAL NOT NULL DEFAULT 0");
 
@@ -542,22 +542,49 @@ public sealed class DatabaseService : IDisposable
         return results;
     }
 
-    private void SeedRecipesIfEmpty()
+    private void EnsurePredefinedRecipes()
     {
         if (_connection is null) return;
 
-        using var countCmd = _connection.CreateCommand();
-        countCmd.CommandText = "SELECT COUNT(*) FROM Recipes";
-        if (Convert.ToInt64(countCmd.ExecuteScalar()) != 0) return;
+        using var existingCmd = _connection.CreateCommand();
+        existingCmd.CommandText = "SELECT RecipeMode, RecipeName FROM Recipes ORDER BY RecipeMode";
+        var existingRecipes = new List<(int Mode, string Name)>();
+        using (var reader = existingCmd.ExecuteReader())
+        {
+            while (reader.Read())
+                existingRecipes.Add((reader.GetInt32(0), reader.GetString(1)));
+        }
+
+        var predefinedNames = new[]
+        {
+            "STATOR PREHEATING",
+            "ROTOR VPI CURING",
+            "STATOR VPI CURING",
+            "ROTOR BANDING CURING",
+            "ROTOR PRE BANDING CURING"
+        };
+
+        if (existingRecipes.Count == predefinedNames.Length
+            && existingRecipes.Select((recipe, index) => recipe.Mode == index + 1 && recipe.Name == predefinedNames[index]).All(match => match))
+            return;
+
+        using var transaction = _connection.BeginTransaction();
+        using var deleteCmd = _connection.CreateCommand();
+        deleteCmd.Transaction = transaction;
+        deleteCmd.CommandText = "DELETE FROM Recipes";
+        deleteCmd.ExecuteNonQuery();
 
         foreach (var recipe in new[]
         {
-            CreateSeedRecipe(1, "Standard Cure", 150, 150, 30, 5),
-            CreateSeedRecipe(2, "High Temperature Cure", 180, 180, 45, 7),
-            CreateSeedRecipe(3, "Preheat Cycle", 90, 90, 20, 3)
+            CreatePredefinedRecipe(1, "STATOR PREHEATING", 70, 12, 90, 90),
+            CreatePredefinedRecipe(2, "ROTOR VPI CURING", 165, 12, 90, 180),
+            CreatePredefinedRecipe(3, "STATOR VPI CURING", 150, 32, 90, 175),
+            CreatePredefinedRecipe(4, "ROTOR BANDING CURING", 150, 12, 90, 175),
+            CreatePredefinedRecipe(5, "ROTOR PRE BANDING CURING", 150, 8, 90, 175)
         })
         {
             using var cmd = _connection.CreateCommand();
+            cmd.Transaction = transaction;
             cmd.CommandText = """
                 INSERT INTO Recipes (RecipeName, RecipeMode,
                     Step1Zone1Temp, Step1Zone2Temp, Step1SoakTime, Step1RampRate,
@@ -573,18 +600,20 @@ public sealed class DatabaseService : IDisposable
             AddRecipeParameters(cmd, recipe);
             cmd.ExecuteNonQuery();
         }
+
+        transaction.Commit();
     }
 
-    private static Recipe CreateSeedRecipe(int mode, string name, double temperature, double soak, double ramp, double safety)
+    private static Recipe CreatePredefinedRecipe(int mode, string name, double temperature, double soakHours, double ramp, double safety)
         => new()
         {
             RecipeName = name,
             RecipeMode = mode,
-            Step1Zone1Temp = temperature, Step1Zone2Temp = temperature, Step1SoakTime = soak, Step1RampRate = ramp,
-            Step2Zone1Temp = temperature, Step2Zone2Temp = temperature, Step2SoakTime = soak, Step2RampRate = ramp,
-            Step3Zone1Temp = temperature, Step3Zone2Temp = temperature, Step3SoakTime = soak, Step3RampRate = ramp,
-            Step4Zone1Temp = temperature, Step4Zone2Temp = temperature, Step4SoakTime = soak, Step4RampRate = ramp,
-            Step5Zone1Temp = temperature, Step5Zone2Temp = temperature, Step5SoakTime = soak, Step5RampRate = ramp,
+            Step1Zone1Temp = temperature, Step1Zone2Temp = temperature, Step1SoakTime = soakHours * 60, Step1RampRate = ramp,
+            Step2Zone1Temp = temperature, Step2Zone2Temp = temperature, Step2SoakTime = soakHours * 60, Step2RampRate = ramp,
+            Step3Zone1Temp = temperature, Step3Zone2Temp = temperature, Step3SoakTime = soakHours * 60, Step3RampRate = ramp,
+            Step4Zone1Temp = temperature, Step4Zone2Temp = temperature, Step4SoakTime = soakHours * 60, Step4RampRate = ramp,
+            Step5Zone1Temp = temperature, Step5Zone2Temp = temperature, Step5SoakTime = soakHours * 60, Step5RampRate = ramp,
             ProcessZone1Safety = safety, ProcessZone2Safety = safety, ProcessBlower1 = 10, ProcessBlower2 = 10
         };
 

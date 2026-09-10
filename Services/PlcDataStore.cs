@@ -222,9 +222,13 @@ public partial class PlcDataStore : ObservableObject
 
     // ?? Slave Configurations ??
     public ObservableCollection<SlaveDeviceConfig> SlaveConfigs { get; } = [];
+    public int Zone1SafetyTemperatureAddress { get; }
+    public int Zone2SafetyTemperatureAddress { get; }
 
-    public PlcDataStore()
+    public PlcDataStore(ApplicationConfiguration configuration)
     {
+        Zone1SafetyTemperatureAddress = configuration.PlcRegisters.Zone1SafetyTemperatureAddress;
+        Zone2SafetyTemperatureAddress = configuration.PlcRegisters.Zone2SafetyTemperatureAddress;
         InitializeIoPoints();
         InitializeSlaveConfigs();
     }
@@ -392,8 +396,8 @@ public partial class PlcDataStore : ObservableObject
                 new(318, "D318 - Step 5 Zone 2 Temp"),
                 new(319, "D319 - Step 5 Soak Time"),
                 new(320, "D320 - Step 5 Ramp Rate"),
-                new(321, "D321 - Zone 1 Safety"),
-                new(322, "D322 - Zone 2 Safety"),
+                new(Zone1SafetyTemperatureAddress, "Configured Zone 1 Safety Temperature"),
+                new(Zone2SafetyTemperatureAddress, "Configured Zone 2 Safety Temperature"),
                 new(323, "D323 - Blower 1"),
                 new(324, "D324 - Blower 2"),
                 new(325, "D325 - zone1 temp setpoint"),
@@ -476,8 +480,8 @@ public partial class PlcDataStore : ObservableObject
                     case 318: Step5Zone2Temp = rawValue; break;
                     case 319: Step5SoakTime = rawValue; break;
                     case 320: Step5RampRate = rawValue; break;
-                    case 321: ProcessZone1Safety = rawValue; break;
-                    case 322: ProcessZone2Safety = rawValue; break;
+                    case var configuredAddress when configuredAddress == Zone1SafetyTemperatureAddress: ProcessZone1Safety = rawValue; break;
+                    case var configuredAddress when configuredAddress == Zone2SafetyTemperatureAddress: ProcessZone2Safety = rawValue; break;
                     case 323: ProcessBlower1 = rawValue; break;
                     case 324: ProcessBlower2 = rawValue; break;
                     case 325: Zone1SetPointValueManual = rawValue; break; // D325 � Zone 1 Temp Setpoint (plain 16-bit int from controller)
