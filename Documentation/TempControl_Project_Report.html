@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TempControl Project Report</title>
+<style>
+:root{--ink:#243447;--muted:#607080;--line:#dbe3ea;--blue:#1f5f8b;--blue-dark:#123b59;--paper:#fff;--canvas:#eef2f5;--code:#f4f7f9;--accent:#e8f2f8;--warn:#fff7e6}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--canvas);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.65}.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;overflow:auto;background:var(--blue-dark);color:#e8f1f7;padding:24px 18px}.brand{font-family:Arial,sans-serif;letter-spacing:.08em;font-size:17px;font-weight:700;margin:0 0 4px}.brand-sub{font-family:Arial,sans-serif;color:#a9c2d3;font-size:12px;margin-bottom:22px}.search{width:100%;padding:10px 11px;border:1px solid #54758d;border-radius:4px;background:#0d2c43;color:#fff;font:14px Arial,sans-serif;margin-bottom:18px}.search::placeholder{color:#b7cad7}.toc{list-style:none;padding:0;margin:0;font:14px/1.35 Arial,sans-serif}.toc li{margin:2px 0}.toc a{display:block;color:#dbeaf3;text-decoration:none;padding:6px 8px;border-radius:4px}.toc a:hover,.toc a.active{background:#245b7e;color:#fff}.toc .nested{margin:0 0 5px 15px;border-left:1px solid #426d87;padding-left:5px}.top{position:fixed;right:25px;bottom:22px;display:none;border:0;border-radius:4px;background:var(--blue);color:#fff;padding:9px 13px;font:13px Arial,sans-serif;cursor:pointer;box-shadow:0 2px 8px #0003}.content{max-width:1120px;width:100%;margin:0 auto;background:var(--paper);padding:55px clamp(30px,6vw,88px) 90px;box-shadow:0 0 20px #22334410}h1,h2,h3,h4{font-family:Arial,sans-serif;line-height:1.25;color:var(--blue-dark);scroll-margin-top:24px}h1{font-size:34px;border-bottom:3px solid var(--blue);padding-bottom:14px;margin:0 0 18px}h2{font-size:25px;border-bottom:1px solid var(--line);padding-bottom:8px;margin:52px 0 18px}h3{font-size:19px;margin:30px 0 10px}h4{font-size:16px;margin:22px 0 8px}p{margin:10px 0 15px}a{color:var(--blue)}blockquote{margin:18px 0;padding:12px 17px;border-left:4px solid var(--blue);background:var(--accent);color:#345}code{font-family:Consolas,"Courier New",monospace;font-size:.9em;background:#edf1f4;border-radius:3px;padding:2px 4px}pre{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:15px;overflow:auto;line-height:1.45;font:13px/1.5 Consolas,"Courier New",monospace}table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:14px;line-height:1.45}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:#eaf2f7;color:var(--blue-dark);font-family:Arial,sans-serif;font-size:13px}tr:nth-child(even) td{background:#fbfcfd}.note{padding:12px 15px;background:var(--warn);border-left:4px solid #d79a1d;margin:15px 0}.flow{border:1px solid var(--line);background:#fbfdfe;border-radius:5px;padding:10px;margin:16px 0;overflow:auto}.flow svg{display:block;width:100%;min-width:620px;height:auto}.flow text{font-family:Arial,sans-serif;font-size:13px;fill:#17384f}.flow .box{fill:#e8f2f8;stroke:#32739d;stroke-width:1.5}.flow .decision{fill:#fff5dc;stroke:#c68a1b;stroke-width:1.5}.flow .arrow{stroke:#315f78;stroke-width:1.5;fill:none;marker-end:url(#arrow)}.small{color:var(--muted);font-size:13px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}.map{background:#f7fafc;border:1px solid var(--line);padding:14px;border-radius:5px;font-family:Consolas,"Courier New",monospace;white-space:pre-wrap;font-size:13px;line-height:1.45}.hidden{display:none!important}.footer{border-top:1px solid var(--line);margin-top:60px;padding-top:15px;color:var(--muted);font-size:13px}
+@media(max-width:850px){.layout{display:block}.sidebar{position:relative;height:auto;padding:18px}.toc{max-height:330px;overflow:auto}.content{padding:35px 20px 70px}h1{font-size:28px}h2{font-size:22px}.two-col{grid-template-columns:1fr}table{font-size:13px}}
+@media print{body{background:#fff;color:#111;font-size:10.5pt}.layout{display:block}.sidebar,.top{display:none!important}.content{max-width:none;margin:0;padding:0;box-shadow:none}h1{font-size:25pt}h2{font-size:18pt;break-before:page}h2:first-of-type{break-before:auto}h3{font-size:13.5pt}pre{white-space:pre-wrap;overflow:visible}table{break-inside:auto}tr{break-inside:avoid;break-after:auto}thead{display:table-header-group}.flow{break-inside:avoid}a{color:inherit;text-decoration:none}.footer{margin-top:25px}}
+</style>
+</head>
+<body>
+<div class="layout" id="top">
+<aside class="sidebar">
+  <div class="brand">TEMPCONTROL</div>
+  <div class="brand-sub">PROJECT REPORT / SOURCE-MATCHED DOCUMENTATION</div>
+  <input id="search" class="search" type="search" placeholder="Search report..." aria-label="Search report">
+  <nav aria-label="Table of contents"><ul class="toc" id="toc">
+    <li><a href="#s1">1. Project Brief and Index</a></li>
+    <li><a href="#s2">2. Project File and Folder Structure</a></li>
+    <li><a href="#s3">3. Application Working and Flow</a></li>
+    <li><a href="#s4">4. Database Schema</a></li>
+    <li><a href="#s5">5. Database and Data Storage</a></li>
+    <li><a href="#s6">6. Graph</a></li>
+    <li><a href="#s7">7. UI Screens</a><ul class="nested">
+      <li><a href="#home">Home</a></li><li><a href="#manual">Manual</a></li><li><a href="#parameters">Process Parameters</a></li><li><a href="#plcio">PLC I/O</a></li><li><a href="#graph">Graph</a></li><li><a href="#alarms">Alarm History</a></li><li><a href="#datalog">Data Log</a></li><li><a href="#readings">Readings</a></li><li><a href="#auth">Authorization Dialog</a></li><li><a href="#run">Run Dialog</a></li><li><a href="#heading">Export Heading Dialog</a></li>
+    </ul></li>
+    <li><a href="#s8">8. PLC Communication Protocol</a></li>
+    <li><a href="#s9">9. Libraries and NuGet Packages</a></li>
+    <li><a href="#s10">10. Flowcharts</a></li>
+    <li><a href="#s11">11. Work Log</a></li>
+    <li><a href="#s12">12. Recommended Improvements</a></li>
+    <li><a href="#s13">13. File Relationship and AI Maintenance Map</a></li>
+  </ul></nav>
+</aside>
+<main class="content">
+<h1>TempControl Project Report</h1>
+<blockquote><strong>Document status:</strong> Markdown is the source of truth. This HTML is the self-contained browser/print representation. Report generated against the current repository state on 2026-09-10.</blockquote>
+<section id="s1"><h2>1. Project Brief and Index</h2>
+<p>TempControl is a WPF desktop application for operating and monitoring an oven chamber. It combines PLC polling, an observable in-memory <code>PlcDataStore</code>, SQLite temperature and recipe storage, live and historical graphing, manual controls, alarm history, CSV reporting, and PDF trend export.</p>
+<p>The application targets <code>net10.0-windows</code>. <code>App.xaml.cs</code> loads runtime configuration, creates <code>MainWindow</code>, and starts the application shell.</p>
+<h3>Current operational rules</h3>
+<table><thead><tr><th>Area</th><th>Current behavior</th></tr></thead><tbody>
+<tr><td>Roles</td><td>Exactly <code>Operator</code> and <code>Supervisor</code> are implemented.</td></tr>
+<tr><td>Authorization</td><td>Session duration comes from <code>Authorization.SessionTimeoutMinutes</code>; the shipped default is 2 minutes.</td></tr>
+<tr><td>Process Parameters</td><td>The visible table contains Step 1 and Step 2 plus safety and blower fields. Storage still retains five-step compatibility columns.</td></tr>
+<tr><td>Recipe selection</td><td>Dropdown selection is a UI preview. Explicit <code>SELECT</code> writes numerical process values.</td></tr>
+<tr><td>D329</td><td>D329 is not used for recipe-selection feedback in the current implementation.</td></tr>
+<tr><td>Home safety</td><td>Home binds to <code>ProcessZone1Safety</code>/<code>ProcessZone2Safety</code>; source addresses are configurable.</td></tr>
+<tr><td>Graph scale</td><td>Y-axis is fixed from 0 to 250, major step 50, minor division 10.</td></tr>
+</tbody></table></section>
+
+<section id="s2"><h2>2. Project File and Folder Structure</h2>
+<table><thead><tr><th>Path</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>App.xaml</code>, <code>App.xaml.cs</code></td><td>WPF resources and startup/shutdown.</td></tr>
+<tr><td><code>MainWindow.xaml</code>, <code>MainWindow.xaml.cs</code></td><td>Shared shell, header, navigation, data templates, and root ViewModel.</td></tr>
+<tr><td><code>TempControl.csproj</code></td><td>Target framework, packages, WPF settings, output-copy rules.</td></tr>
+<tr><td><code>appsettings.json</code></td><td>Customer-editable credentials, timeout, and PLC safety register addresses.</td></tr>
+<tr><td><code>Models/</code></td><td>Recipe, PLC I/O, slave, alarm, and temperature data models.</td></tr>
+<tr><td><code>ViewModels/</code></td><td>MVVM state and commands for the shell and screens.</td></tr>
+<tr><td><code>Views/</code></td><td>Active XAML screens and dialogs.</td></tr>
+<tr><td><code>Services/</code></td><td>PLC transport/polling, database, authorization, run, alarm, cache, logging, and PDF services.</td></tr>
+<tr><td><code>Converters/</code></td><td>WPF value converters.</td></tr>
+<tr><td><code>Assets/</code></td><td>Images, logs, CSV files, and project notes. C# files are excluded from compilation.</td></tr>
+<tr><td><code>docs/</code></td><td>Existing focused documentation notes.</td></tr>
+</tbody></table>
+<h3>Active screens</h3>
+<table><thead><tr><th>Screen</th><th>View / ViewModel</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td>Home</td><td><code>HomeView.xaml</code> / <code>HomeViewModel.cs</code></td><td>Live oven state, safety values, process state, alarms, RUN/STOP.</td></tr>
+<tr><td>Manual</td><td><code>ManualPage.xaml</code> / <code>ManualPageViewModel.cs</code></td><td>Manual setpoints, safety temperatures, blower/heater controls.</td></tr>
+<tr><td>Process Parameters</td><td><code>SettingsView.xaml</code> / <code>SettingsViewModel.cs</code></td><td>Recipe preview, apply, and protected editing.</td></tr>
+<tr><td>PLC I/O</td><td><code>PlcIoView.xaml</code> / <code>PlcIoViewModel.cs</code></td><td>Digital input/output state lists.</td></tr>
+<tr><td>Graph</td><td><code>GraphView.xaml</code> / <code>GraphViewModel.cs</code></td><td>Live/history chart, ruler, statistics, PDF.</td></tr>
+<tr><td>Alarm History</td><td><code>AlarmHistoryView.xaml</code> / <code>AlarmHistoryViewModel.cs</code></td><td>Active/cleared alarms and acknowledgement.</td></tr>
+<tr><td>Data Log</td><td><code>MenuView.xaml</code> / <code>MenuViewModel.cs</code></td><td>CSV report download and logging/communication controls.</td></tr>
+<tr><td>Readings</td><td><code>EnergyReadingsView.xaml</code> / <code>EnergyReadingsViewModel.cs</code></td><td>Voltage, current, power, and zone-current readings.</td></tr>
+</tbody></table>
+<p>Dialogs include <code>AuthorizationDialog</code>, <code>RunDialogWindow</code>, and <code>ExportHeadingDialog</code>.</p></section>
+
+<section id="s3"><h2>3. Application Working and Flow</h2>
+<h3>Startup sequence</h3><ol><li><code>App.OnStartup</code> creates <code>AuthorizationService</code>.</li><li>Configuration is loaded from the executable directory and validated.</li><li><code>MainWindow</code> creates <code>MainViewModel</code>.</li><li>The shared <code>PlcDataStore</code> is created and restored from <code>plc_state_cache.json</code>.</li><li><code>DatabaseService.Initialize</code> creates/opens SQLite and ensures recipes.</li><li><code>ModbusPollingService</code> starts logging and PLC polling.</li><li>Screen ViewModels are created and Home is selected.</li></ol>
+<pre>PLC transport
+    -&gt; ModbusPollingService
+    -&gt; PlcDataStore
+    -&gt; ViewModels
+    -&gt; WPF Views
+
+PlcDataStore / RunSessionService
+    -&gt; DatabaseService
+    -&gt; SQLite
+
+SQLite queries
+    -&gt; GraphViewModel / export paths</pre>
+<h3>Authorization and permissions</h3>
+<table><thead><tr><th>Operation</th><th>Operator</th><th>Supervisor</th><th>Session</th></tr></thead><tbody><tr><td>Recipe dropdown/preview</td><td>Yes</td><td>Yes</td><td>Required</td></tr><tr><td>Explicit recipe SELECT</td><td>Yes</td><td>Yes</td><td>Required</td></tr><tr><td>Process Parameters edit</td><td>No</td><td>Yes</td><td>Required</td></tr><tr><td>Set Recipe edited values</td><td>No</td><td>Yes</td><td>Required</td></tr><tr><td>Manual controls</td><td>Existing protected checks</td><td>Existing protected checks</td><td>Required</td></tr></tbody></table>
+<h3>Predefined process modes</h3>
+<table><thead><tr><th>Mode</th><th>Zone 1</th><th>Zone 2</th><th>Safety</th><th>Soak stored/displayed</th><th>Ramp</th></tr></thead><tbody><tr><td>STATOR PREHEATING</td><td>70°C</td><td>70°C</td><td>90°C</td><td>12 h / 720 min</td><td>90 min</td></tr><tr><td>ROTOR VPI CURING</td><td>165°C</td><td>165°C</td><td>180°C</td><td>12 h / 720 min</td><td>90 min</td></tr><tr><td>STATOR VPI CURING</td><td>150°C</td><td>150°C</td><td>175°C</td><td>32 h / 1920 min</td><td>90 min</td></tr><tr><td>ROTOR BANDING CURING</td><td>150°C</td><td>150°C</td><td>175°C</td><td>12 h / 720 min</td><td>90 min</td></tr><tr><td>ROTOR PRE BANDING CURING</td><td>150°C</td><td>150°C</td><td>175°C</td><td>8 h / 480 min</td><td>90 min</td></tr></tbody></table>
+<p>Dropdown selection loads values into the UI only. Explicit <code>SELECT</code> writes actual process values and does not write a recipe feedback register.</p></section>
+
+<section id="s4"><h2>4. Database Schema</h2>
+<p>SQLite is accessed through <code>Microsoft.Data.Sqlite</code>. The default file is <code>ovendata.db</code>.</p>
+<h3>TemperatureLog</h3><table><thead><tr><th>Column</th><th>Type</th><th>Purpose</th></tr></thead><tbody><tr><td>Id</td><td>INTEGER PRIMARY KEY AUTOINCREMENT</td><td>Record identity.</td></tr><tr><td>Timestamp</td><td>TEXT NOT NULL</td><td>Round-trip timestamp.</td></tr><tr><td>Zone1Temp, Zone2Temp</td><td>REAL NOT NULL</td><td>Main temperatures.</td></tr><tr><td>Zone1SetPv, Zone2SetPv</td><td>REAL NOT NULL DEFAULT 0</td><td>Set/PV-related values.</td></tr><tr><td>Zone1Sv, Zone2Sv</td><td>REAL NOT NULL DEFAULT 0</td><td>SV-related values.</td></tr><tr><td>Zone1JobPv, Zone2JobPv</td><td>REAL NOT NULL DEFAULT 0</td><td>Job-PV-related values.</td></tr></tbody></table>
+<p>Index: <code>IX_TemperatureLog_Timestamp</code> on <code>Timestamp</code>.</p>
+<h3>Recipes</h3><table><thead><tr><th>Column group</th><th>Type</th><th>Purpose</th></tr></thead><tbody><tr><td>Id</td><td>INTEGER PRIMARY KEY AUTOINCREMENT</td><td>Identity.</td></tr><tr><td>RecipeName</td><td>TEXT NOT NULL</td><td>Display name.</td></tr><tr><td>RecipeMode</td><td>INTEGER NOT NULL UNIQUE</td><td>Stored mode identifier.</td></tr><tr><td>Step1...Step5 fields</td><td>REAL NOT NULL</td><td>Four values per persisted step. Step 3-5 remain for compatibility but are not visible in the current UI.</td></tr><tr><td>ProcessZone1Safety, ProcessZone2Safety</td><td>REAL NOT NULL</td><td>Safety values.</td></tr><tr><td>ProcessBlower1, ProcessBlower2</td><td>REAL NOT NULL</td><td>Blower values.</td></tr></tbody></table>
+<p><code>DatabaseService.Initialize</code> also handles historical temperature-column renames/ensures and calls <code>EnsurePredefinedRecipes</code>.</p></section>
+
+<section id="s5"><h2>5. Database and Data Storage</h2>
+<h3>PLC to database</h3><pre>PLC
+  -&gt; OmronFinsTcpTransport
+  -&gt; ModbusPollingService
+  -&gt; PlcDataStore
+  -&gt; DatabaseService.InsertRecord
+  -&gt; TemperatureLog</pre>
+<h3>Database to graph/report</h3><pre>TemperatureLog
+  -&gt; DatabaseService.QueryRangeWithJobPv / QueryRangeForPdf / QueryRangeFull
+  -&gt; GraphViewModel or export service
+  -&gt; chart, CSV, or PDF</pre>
+<table><thead><tr><th>Runtime file</th><th>Purpose</th></tr></thead><tbody><tr><td><code>plc_state_cache.json</code></td><td>Last-known process/manual values.</td></tr><tr><td><code>ovendata.db</code></td><td>SQLite temperature and recipe storage.</td></tr><tr><td><code>Logs/debug_yyyyMMdd.txt</code></td><td>Diagnostic logs.</td></tr><tr><td><code>run_folder.txt</code></td><td>Last run-dialog folder preference.</td></tr></tbody></table></section>
+
+<section id="s6"><h2>6. Graph</h2>
+<h3>Series and sources</h3><table><thead><tr><th>Series</th><th>Color</th><th>Live source</th><th>Historical source</th></tr></thead><tbody><tr><td>Zone 1 Temperature</td><td>Red</td><td><code>DataStore.Zone1Temperature</code></td><td><code>QueryRangeWithJobPv</code></td></tr><tr><td>Zone 2 Temperature</td><td>Green</td><td><code>DataStore.Zone2Temperature</code></td><td><code>QueryRangeWithJobPv</code></td></tr><tr><td>Job PV</td><td>Blue</td><td><code>DataStore.Zone1Output</code></td><td>Query value labelled <code>JobPv</code></td></tr></tbody></table>
+<p>Live mode loads the previous 24 hours, then the one-second timer appends a point every 60 seconds. History mode validates <code>HH:mm</code> values and queries the selected SQLite range.</p>
+<table><thead><tr><th>Feature</th><th>Implementation</th></tr></thead><tbody><tr><td>Y-axis</td><td>0 to 250; major step 50; four subdivisions, giving 10-unit minor divisions.</td></tr><tr><td>X-axis</td><td>Five-minute DateTime axis; short windows show HH:mm, longer/history views show date plus time.</td></tr><tr><td>Zoom</td><td>5m, 15m, 30m, 1h, All/24h; <code>ZoomMode="X"</code>.</td></tr><tr><td>Scroll</td><td>Horizontal scrollbar controls the visible X window.</td></tr><tr><td>Ruler</td><td>Mouse-positioned vertical ruler with nearest-point markers and labels for all three series.</td></tr><tr><td>VALUES drawer</td><td>Selected/current value, minimum, maximum, and average.</td></tr><tr><td>PDF trend</td><td>Range query, heading dialog, save dialog, SkiaSharp exporter.</td></tr></tbody></table>
+<div class="note">Known source mismatch: the PDF query selects <code>Zone1Sv</code> for the third exported value while the model/UI labels it <code>JobPv</code>. This is not silently corrected by this report.</div></section>
+
+<section id="s7"><h2>7. UI Screens</h2>
+<div id="home"><h3>Home</h3><p><strong>Purpose:</strong> Primary live operating view. <strong>Files:</strong> <code>HomeView.xaml</code>, <code>HomeViewModel.cs</code>. Shows temperatures, setpoints/output-related values, process state, timer, safety values, and alarms. RUN and STOP use <code>RunSessionService</code>. Safety values remain beside zone headings and are fed from configured DataStore mappings.</p></div>
+<div id="manual"><h3>Manual</h3><p><strong>Purpose:</strong> Authorized manual operation. <strong>Files:</strong> <code>ManualPage.xaml</code>, <code>ManualPageViewModel.cs</code>. Handles setpoints, safety temperatures, blowers, heaters, manual/auto checks, protected registers, and actuator coils.</p></div>
+<div id="parameters"><h3>Process Parameters</h3><p><strong>Purpose:</strong> Recipe preview, explicit apply, and Supervisor editing. <strong>Files:</strong> <code>SettingsView.xaml</code>, <code>SettingsViewModel.cs</code>. The visible controls are the recipe dropdown, SELECT, Step 1/2 fields, safety, blower ON/OFF, Edit, and Set Recipe. Dropdown selection is preview-only; SELECT writes current numerical values. D329 is not used. The former green inline feedback line was removed.</p></div>
+<div id="plcio"><h3>PLC I/O</h3><p><strong>Purpose:</strong> Display configured digital input/output points. <strong>Files:</strong> <code>PlcIoView.xaml</code>, <code>PlcIoViewModel.cs</code>. Data comes from <code>PlcDataStore.IoPoints</code>.</p></div>
+<div id="graph"><h3>Graph</h3><p><strong>Purpose:</strong> Live/history trends and PDF export. <strong>Files:</strong> <code>GraphView.xaml</code>, <code>GraphViewModel.cs</code>, <code>GraphView.xaml.cs</code>. Includes mode/date controls, zoom, horizontal scroll, ruler, VALUES drawer, and export.</p></div>
+<div id="alarms"><h3>Alarm History</h3><p><strong>Purpose:</strong> Active/cleared alarm review and acknowledgement. <strong>Files:</strong> <code>AlarmHistoryView.xaml</code>, <code>AlarmHistoryViewModel.cs</code>, <code>AlarmHistoryService.cs</code>.</p></div>
+<div id="datalog"><h3>Data Log</h3><p><strong>Purpose:</strong> CSV report export and logging/communication controls. <strong>Files:</strong> <code>MenuView.xaml</code>, <code>MenuViewModel.cs</code>. Export uses <code>DatabaseService.ExportToCsv</code>.</p></div>
+<div id="readings"><h3>Readings</h3><p><strong>Purpose:</strong> Electrical readings. <strong>Files:</strong> <code>EnergyReadingsView.xaml</code>, <code>EnergyReadingsViewModel.cs</code>. Shows voltage, current, power, and zone-current values.</p></div>
+<div id="auth"><h3>Authorization Dialog</h3><p><strong>Purpose:</strong> Existing modal login. <strong>Files:</strong> <code>AuthorizationDialog.xaml(.cs)</code>. Credentials are validated by <code>AuthorizationService</code>; successful login starts or replaces the configured session.</p></div>
+<div id="run"><h3>Run Dialog</h3><p><strong>Purpose:</strong> Configure run folder, file name, interval, and auto-start. <strong>Files:</strong> <code>RunDialogWindow.xaml(.cs)</code>. Default folder is <code>C:\ovencycle_runs</code>; last folder is stored in <code>run_folder.txt</code>.</p></div>
+<div id="heading"><h3>Export Heading Dialog</h3><p><strong>Purpose:</strong> Request a PDF heading only during export. <strong>Files:</strong> <code>ExportHeadingDialog.xaml(.cs)</code>. Blank input falls back to <code>Temperature Trend Report</code>.</p></div></section>
+
+<section id="s8"><h2>8. PLC Communication Protocol</h2>
+<h3>Transport</h3><ul><li>Active PLC is Slave 4 using Omron FINS/TCP.</li><li>Current source endpoint is <code>192.168.250.1:9600</code>.</li><li><code>OmronFinsTcpTransport</code> uses <code>HslCommunication</code>.</li><li>Basic Modbus TCP/RS485 and null transports also exist.</li><li>The shared active transport is reused for writes; no second connection is opened.</li></ul>
+<h3>Important registers</h3><table><thead><tr><th>Address</th><th>Meaning</th><th>Current path</th></tr></thead><tbody><tr><td>D100</td><td>Zone 1 setpoint /10</td><td><code>Zone1Setpoint</code></td></tr><tr><td>D103</td><td>Zone 2 setpoint</td><td><code>Zone2Setpoint</code></td></tr><tr><td>D120-D121</td><td>Zone 1/2 actual temperatures; /10</td><td><code>Zone1Temperature</code>, <code>Zone2Temperature</code></td></tr><tr><td>D301-D308</td><td>Visible Step 1/2 values</td><td>Process Parameters writes/polling</td></tr><tr><td>Configured safety addresses</td><td>Zone safety values, default D321/D322</td><td><code>ProcessZone1Safety</code>, <code>ProcessZone2Safety</code></td></tr><tr><td>D323-D324</td><td>Blower settings</td><td>Process Parameters</td></tr><tr><td>D325-D328</td><td>Manual setpoints/safety</td><td>Manual page</td></tr><tr><td>D400-D402</td><td>Process step, elapsed time, set time</td><td>Process state</td></tr><tr><td>D138-D171, D200-D210, D250-D260</td><td>Energy/current blocks</td><td>Float assembly</td></tr></tbody></table>
+<h3>Important coils</h3><table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody><tr><td>10000-10024</td><td>Digital inputs, including manual/auto at 10024.</td></tr><tr><td>1600-1608, 1617</td><td>Digital outputs/tower indicators.</td></tr><tr><td>10704</td><td>W44.0 process run/stop command path.</td></tr><tr><td>11760</td><td>W110.0 process-running feedback.</td></tr><tr><td>10640-10643</td><td>Manual blower/heater actuator writes.</td></tr><tr><td>10644</td><td>W40.4 RUN/STOP path.</td></tr></tbody></table>
+<p>Polling groups connections, retries with backoff, reads configured registers/coils, and dispatches updates on the WPF dispatcher. A semaphore serializes reads and writes. <code>ManualControlService</code> converts numeric values to bounded <code>ushort</code> values and delegates writes. D329 is not used for recipe-selection feedback in the current implementation.</p></section>
+
+<section id="s9"><h2>9. Libraries and NuGet Packages</h2><table><thead><tr><th>Package</th><th>Version</th><th>Use</th></tr></thead><tbody><tr><td>CommunityToolkit.Mvvm</td><td>8.4.0</td><td>Observable properties, commands, source generation.</td></tr><tr><td>HslCommunication</td><td>12.8.1</td><td>Omron FINS/TCP PLC communication.</td></tr><tr><td>LiveChartsCore.SkiaSharpView.WPF</td><td>2.0.0-rc5.4</td><td>WPF charting and axes.</td></tr><tr><td>Microsoft.Data.Sqlite</td><td>9.0.5</td><td>SQLite access.</td></tr><tr><td>System.IO.Ports</td><td>10.0.7</td><td>Serial/RS485 support.</td></tr></tbody></table><p>Target framework: <code>net10.0-windows</code>; output type: <code>WinExe</code>; WPF, nullable, and implicit usings are enabled.</p></section>
+
+<section id="s10"><h2>10. Flowcharts</h2>
+<p>The diagrams below are inline SVG and require no external resource.</p>
+<div class="flow"><h3> A. Overall application flow</h3><svg viewBox="0 0 860 120" role="img" aria-label="Overall application flow"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#315f78"/></marker></defs><rect class="box" x="10" y="35" width="130" height="45" rx="5"/><text x="75" y="62" text-anchor="middle">App startup</text><path class="arrow" d="M140 57 H180"/><rect class="box" x="180" y="35" width="155" height="45" rx="5"/><text x="257" y="54" text-anchor="middle">Load and validate</text><text x="257" y="70" text-anchor="middle">appsettings.json</text><path class="arrow" d="M335 57 H375"/><rect class="box" x="375" y="35" width="145" height="45" rx="5"/><text x="447" y="54" text-anchor="middle">Create shell and</text><text x="447" y="70" text-anchor="middle">MainViewModel</text><path class="arrow" d="M520 57 H560"/><rect class="box" x="560" y="35" width="130" height="45" rx="5"/><text x="625" y="54" text-anchor="middle">Start polling</text><path class="arrow" d="M690 57 H730"/><rect class="box" x="730" y="35" width="120" height="45" rx="5"/><text x="790" y="62" text-anchor="middle">Show Home</text></svg></div>
+<div class="flow"><h3>B. PLC polling flow</h3><svg viewBox="0 0 860 120" role="img" aria-label="PLC polling flow"><rect class="box" x="10" y="35" width="135" height="45" rx="5"/><text x="77" y="62" text-anchor="middle">Connect/retry</text><path class="arrow" d="M145 57 H185"/><rect class="box" x="185" y="35" width="140" height="45" rx="5"/><text x="255" y="62" text-anchor="middle">Read registers/coils</text><path class="arrow" d="M325 57 H365"/><rect class="box" x="365" y="35" width="145" height="45" rx="5"/><text x="437" y="54" text-anchor="middle">Dispatch on</text><text x="437" y="70" text-anchor="middle">WPF dispatcher</text><path class="arrow" d="M510 57 H550"/><rect class="box" x="550" y="35" width="150" height="45" rx="5"/><text x="625" y="54" text-anchor="middle">Update</text><text x="625" y="70" text-anchor="middle">PlcDataStore</text><path class="arrow" d="M700 57 H740"/><rect class="box" x="740" y="35" width="110" height="45" rx="5"/><text x="795" y="62" text-anchor="middle">Repeat</text></svg></div>
+<div class="flow"><h3>C. Process parameter flow</h3><svg viewBox="0 0 860 155" role="img" aria-label="Process parameter flow"><rect class="box" x="10" y="55" width="125" height="45" rx="5"/><text x="72" y="82" text-anchor="middle">Choose recipe</text><path class="arrow" d="M135 77 H180"/><rect class="box" x="180" y="55" width="145" height="45" rx="5"/><text x="252" y="74" text-anchor="middle">Authorize and</text><text x="252" y="90" text-anchor="middle">preview only</text><path class="arrow" d="M325 77 H365"/><rect class="box" x="365" y="55" width="110" height="45" rx="5"/><text x="420" y="82" text-anchor="middle">Press SELECT</text><path class="arrow" d="M475 77 H515"/><polygon class="decision" points="560,45 615,77 560,109 505,77"/><text x="560" y="73" text-anchor="middle">PLC</text><text x="560" y="89" text-anchor="middle">connected?</text><path class="arrow" d="M615 77 H665"/><rect class="box" x="665" y="55" width="90" height="45" rx="5"/><text x="710" y="82" text-anchor="middle">Write values</text><path class="arrow" d="M755 77 H795"/><rect class="box" x="795" y="55" width="55" height="45" rx="5"/><text x="822" y="82" text-anchor="middle">Done</text><text x="560" y="132" text-anchor="middle">No -&gt; disconnected dialog</text></svg></div>
+<div class="flow"><h3>D. Run/Stop flow</h3><svg viewBox="0 0 860 120" role="img" aria-label="Run stop flow"><rect class="box" x="10" y="35" width="120" height="45" rx="5"/><text x="70" y="62" text-anchor="middle">Run dialog</text><path class="arrow" d="M130 57 H175"/><rect class="box" x="175" y="35" width="145" height="45" rx="5"/><text x="247" y="54" text-anchor="middle">Write coil 10644</text><text x="247" y="70" text-anchor="middle">true</text><path class="arrow" d="M320 57 H365"/><rect class="box" x="365" y="35" width="150" height="45" rx="5"/><text x="440" y="54" text-anchor="middle">Log SQLite and</text><text x="440" y="70" text-anchor="middle">buffer CSV</text><path class="arrow" d="M515 57 H560"/><rect class="box" x="560" y="35" width="140" height="45" rx="5"/><text x="630" y="54" text-anchor="middle">STOP or feedback</text><path class="arrow" d="M700 57 H740"/><rect class="box" x="740" y="35" width="110" height="45" rx="5"/><text x="795" y="62" text-anchor="middle">Finish CSV</text></svg></div>
+<div class="flow"><h3>E. Graph data flow</h3><svg viewBox="0 0 860 120" role="img" aria-label="Graph data flow"><rect class="box" x="10" y="35" width="145" height="45" rx="5"/><text x="82" y="54" text-anchor="middle">SQLite previous</text><text x="82" y="70" text-anchor="middle">24h/range query</text><path class="arrow" d="M155 57 H200"/><rect class="box" x="200" y="35" width="135" height="45" rx="5"/><text x="267" y="62" text-anchor="middle">Three series</text><path class="arrow" d="M335 57 H380"/><rect class="box" x="380" y="35" width="145" height="45" rx="5"/><text x="452" y="54" text-anchor="middle">Live DataStore</text><text x="452" y="70" text-anchor="middle">every 60 seconds</text><path class="arrow" d="M525 57 H570"/><rect class="box" x="570" y="35" width="120" height="45" rx="5"/><text x="630" y="62" text-anchor="middle">Chart/ruler</text><path class="arrow" d="M690 57 H735"/><rect class="box" x="735" y="35" width="115" height="45" rx="5"/><text x="792" y="62" text-anchor="middle">Stats/PDF</text></svg></div>
+<div class="flow"><h3>F. Reporting flow</h3><svg viewBox="0 0 860 120" role="img" aria-label="Reporting flow"><rect class="box" x="10" y="35" width="130" height="45" rx="5"/><text x="75" y="62" text-anchor="middle">Choose range</text><path class="arrow" d="M140 57 H185"/><rect class="box" x="185" y="35" width="145" height="45" rx="5"/><text x="257" y="54" text-anchor="middle">Database query</text><text x="257" y="70" text-anchor="middle">or CSV export</text><path class="arrow" d="M330 57 H375"/><rect class="box" x="375" y="35" width="130" height="45" rx="5"/><text x="440" y="62" text-anchor="middle">Heading dialog</text><path class="arrow" d="M505 57 H550"/><rect class="box" x="550" y="35" width="130" height="45" rx="5"/><text x="615" y="62" text-anchor="middle">Save dialog</text><path class="arrow" d="M680 57 H725"/><rect class="box" x="725" y="35" width="125" height="45" rx="5"/><text x="787" y="62" text-anchor="middle">PDF/CSV file</text></svg></div></section>
+
+<section id="s11"><h2>11. Work Log</h2><p>Entries below reflect changes established from the current conversation and source state. Dates were not inferred.</p><table><thead><tr><th>Change</th><th>Description</th><th>Area</th></tr></thead><tbody><tr><td>Graph changes</td><td>Three series, live/history charting, X scrolling, ruler, markers, and VALUES drawer.</td><td>Graph</td></tr><tr><td>Fixed graph scale</td><td>Y-axis 0-250, major 50, minor 10; X-only zoom.</td><td>Graph</td></tr><tr><td>Ruler/statistics</td><td>Independent nearest-point values for Zone 1, Zone 2, and Job PV.</td><td>Graph</td></tr><tr><td>PDF changes</td><td>Heading requested at export time.</td><td>Reporting</td></tr><tr><td>Home safety display</td><td>Safety values beside zone headings without layout redesign.</td><td>Home</td></tr><tr><td>Process Parameters reduction</td><td>Visible Step 3-5 rows removed; bottom safety/blower boxes retained.</td><td>Process Parameters</td></tr><tr><td>Five predefined modes</td><td>Specified temperatures, safety values, soak hours, and 90-minute ramp.</td><td>Recipes</td></tr><tr><td>Recipe selection</td><td>Dropdown is preview-only; explicit SELECT applies numerical values.</td><td>Recipes</td></tr><tr><td>D329 removal</td><td>Removed recipe-selection feedback use; no replacement register.</td><td>PLC/recipes</td></tr><tr><td>Authorization</td><td>Operator/Supervisor roles and timed sessions preserved.</td><td>Authorization</td></tr><tr><td>Configuration file</td><td>Credentials, timeout, and safety registers are loaded from executable-directory appsettings.json.</td><td>Configuration</td></tr><tr><td>PLC error handling</td><td>Disconnected and connected-write-failure dialogs distinguished.</td><td>Process Parameters</td></tr><tr><td>Green feedback removal</td><td>Removed Process Parameters inline status line; dialogs remain.</td><td>Process Parameters</td></tr></tbody></table></section>
+
+<section id="s12"><h2>12. Recommended Improvements</h2><p><strong>FUTURE recommendations only:</strong></p><ol><li>Secure credentials with a protected credential store.</li><li>Protect customer configuration file permissions.</li><li>Add a customer-facing configuration validator.</li><li>Add SQLite backup/restore.</li><li>Add log retention and export controls.</li><li>Add application/schema/configuration version information.</li><li>Digitally sign the delivered application.</li><li>Add automated PLC transport and write-behavior tests.</li><li>Review legacy five-step storage fields.</li><li>Resolve the PDF Job PV/Zone1Sv source-label mismatch.</li></ol></section>
+
+<section id="s13"><h2>13. File Relationship and AI Maintenance Map</h2>
+<div class="two-col"><div><h3>PLC communication</h3><div class="map">Entry: MainViewModel
+Files: ModbusPollingService, OmronFinsTcpTransport, BasicModbusTransport, NullModbusTransport
+Service: ModbusPollingService
+Input: PLC registers/coils
+Output: PlcDataStore and connection state</div></div><div><h3>PLC state and UI</h3><div class="map">Entry: PlcDataStore constructor/update methods
+Files: PlcDataStore, SlaveDeviceConfig
+Service: PlcDataStore
+Input: polling dispatch
+Output: ViewModel bindings and I/O values</div></div><div><h3>Recipes</h3><div class="map">Entry: SettingsViewModel commands
+Files: SettingsViewModel, SettingsView, Recipe, DatabaseService
+Service: ManualControlService + DatabaseService
+Input: Recipes table/selection
+Output: preview, writes, dialogs</div></div><div><h3>Authorization/config</h3><div class="map">Entry: App.OnStartup
+Files: appsettings.json, ApplicationConfiguration, AuthorizationService, AuthorizationDialog
+Input: executable-directory JSON
+Output: roles, timeout, safety addresses</div></div><div><h3>Database/reporting</h3><div class="map">Entry: DatabaseService.Initialize
+Files: DatabaseService, RunSessionService, GraphViewModel, PdfTrendExporter, MenuViewModel
+Input: SQLite tables
+Output: chart points, CSV, PDF</div></div><div><h3>Navigation</h3><div class="map">Entry: MainWindow data templates
+Files: MainWindow, MainViewModel, Views/*.xaml
+Coordinator: MainViewModel
+Input: commands/shared services
+Output: active screen</div></div></div>
+<h3>Confirmed limitations</h3><ul><li>D329 is absent from active source and is not used for recipe-selection feedback.</li><li>Database/model retain five-step fields while the visible table has two steps.</li><li>PDF third-series source-label mismatch remains in current code.</li><li>Plaintext customer credentials remain a deployment security concern.</li></ul></section>
+
+<div class="footer">TempControl Project Report. Markdown source: <code>Documentation/TempControl_Project_Report.md</code>. This HTML has no external CDN or server dependency.</div>
+</main></div>
+<button class="top" id="topButton" type="button">Back to top</button>
+<script>
+(function(){
+  const search=document.getElementById('search');
+  const sections=[...document.querySelectorAll('main section')];
+  const links=[...document.querySelectorAll('.toc a')];
+  const topButton=document.getElementById('topButton');
+  search.addEventListener('input',function(){
+    const q=this.value.trim().toLowerCase();
+    sections.forEach(section=>section.classList.toggle('hidden',q && !section.innerText.toLowerCase().includes(q)));
+    links.forEach(link=>{const target=document.querySelector(link.getAttribute('href'));link.parentElement.classList.toggle('hidden',!!q && (!target || target.classList.contains('hidden')))});
+  });
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+entry.target.id))}}),{rootMargin:'-15% 0px -70% 0px'});
+  sections.forEach(section=>observer.observe(section));
+  window.addEventListener('scroll',()=>{topButton.style.display=window.scrollY>500?'block':'none'});
+  topButton.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+})();
+</script>
+</body>
+</html>
