@@ -331,7 +331,7 @@
                                    HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
                         <TextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource DisplayTextBox}" Foreground ="Green"
-                                 Text="{Binding DataStore.Zone1Setpoint, StringFormat={}{0:F1}, Mode=OneWay}"/>
+                                 Text="{Binding DataStore.Zone1Setpoint, Mode=OneWay}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource UnitLabelPV}" HorizontalAlignment="Left" >
                             <Run Text="&#x00B0;C"/>
