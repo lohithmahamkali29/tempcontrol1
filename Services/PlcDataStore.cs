@@ -456,8 +456,8 @@ public partial class PlcDataStore : ObservableObject
                     case 120: Zone1Temperature = rawValue/10.0; break; // D120 � Zone 1 PV
                     case 100: Zone1Setpoint = rawValue/10.0; break; // D100 � Zone 1 Temperature (PV)
                     case 121: Zone2Temperature = rawValue/10.0; break; // D121 � Zone 2 PV
-                    case 123: Zone1Output = rawValue; break; // D100 � Zone 1 Temperature (PV)
-                    case 125: Zone2Output = rawValue; break; // D101 � Zone 2 Temperature (PV)
+                    case 123: Zone1Output = rawValue/10.0; break; // D123 � Zone 1 Job PV, tenths-scaled like D120/D121/D100
+                    case 125: Zone2Output = rawValue/10.0; break; // D125 � Zone 2 Job PV, tenths-scaled like D123
                     //case 102: Zone1Setpoint = rawValue; break; // D102 � Zone 1 SV (live setpoint from controller)
                     case 103: Zone2Setpoint = rawValue; break; // D103 � Zone 2 SV (live setpoint from controller)
                     case 301: Step1Zone1Temp = rawValue; break;
@@ -484,7 +484,7 @@ public partial class PlcDataStore : ObservableObject
                     case var configuredAddress when configuredAddress == Zone2SafetyTemperatureAddress: ProcessZone2Safety = rawValue; break;
                     case 323: ProcessBlower1 = rawValue; break;
                     case 324: ProcessBlower2 = rawValue; break;
-                    case 325: Zone1SetPointValueManual = rawValue; break; // D325 � Zone 1 Temp Setpoint (plain 16-bit int from controller)
+                    case 325: Zone1SetPointValueManual = rawValue/10.0; break; // D325 � Zone 1 Manual Setpoint, tenths-scaled like D100
                     case 326: Zone2Setpoint = rawValue; break; // D326 � Zone 2 Temp Setpoint (plain 16-bit int)
                     case 327: Zone1SafetyTemperature = rawValue; break;
                     case 328: Zone2SafetyTemperature = rawValue; break;

@@ -183,7 +183,7 @@ public partial class ManualPageViewModel : ObservableObject
 
         var writes = new (int Address, double Value, string Label)[]
         {
-            (325, Zone1SetPointValue,                "Zone 1 Setpoint"),
+            (325, Zone1SetPointValue * 10.0,         "Zone 1 Setpoint"), // D325 is tenths-scaled (matches PlcDataStore's rawValue/10.0 on read)
             (326, Zone2SetPointValue,                "Zone 2 Setpoint"),
             (327, Zone1SafetyTemperatureValue,       "Zone 1 Safety Temp"),
             (328, Zone2SafetyTemperatureValue,       "Zone 2 Safety Temp"),

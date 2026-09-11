@@ -27,7 +27,7 @@
         <Style x:Key="DisplayTextBoxPV" TargetType="TextBox">
             <Setter Property="IsReadOnly" Value="True"/>
             <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="FontSize" Value="90"/>
+            <Setter Property="FontSize" Value="55"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="Red"/>
             <Setter Property="Background" Value="White"/>
@@ -179,7 +179,11 @@
                     <ColumnDefinition Width="0.5*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource ZoneCardPV}" Width="550" HorizontalAlignment="Right">
+                <Border Grid.Column="0" Style="{StaticResource ZoneCardPV}" MinWidth="550" HorizontalAlignment="Right">
+                    <!-- DownOnly: the card renders at its natural size until a reading is
+                         too wide for the card, then the whole block scales down uniformly
+                         so every digit stays visible instead of being cut off. -->
+                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top">
                     <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
                         <Grid Margin="0,0,0,28">
                             <TextBlock Text="ZONE 1" FontSize="30" FontWeight="Bold"
@@ -192,10 +196,12 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid>
+                        <!-- Columns size to their content so a long value keeps its full
+                             width instead of overflowing a fixed half-card column. -->
+                        <Grid HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -217,7 +223,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Style="{StaticResource DisplayTextBoxPV}"
-                                         Text="{Binding DataStore.Zone1Temperature,StringFormat={}{0:F1}, Mode=OneWay}"/>
+                                         Text="{Binding DataStore.Zone1Temperature,StringFormat={}{0:F1}, Mode=OneWay }"/>
                                 <TextBlock Grid.Column="1" Style="{StaticResource UnitLabelPV}" Text="°C"/>
                             </Grid>
 
@@ -234,9 +240,14 @@
 
                         </Grid>
                     </StackPanel>
+                    </Viewbox>
                 </Border>
 
-                <Border Grid.Column="1" Style="{StaticResource ZoneCardPV}" Width="550" HorizontalAlignment="Left">
+                <Border Grid.Column="1" Style="{StaticResource ZoneCardPV}" MinWidth="550" HorizontalAlignment="Left">
+                    <!-- DownOnly: the card renders at its natural size until a reading is
+                         too wide for the card, then the whole block scales down uniformly
+                         so every digit stays visible instead of being cut off. -->
+                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top">
                     <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
                         <Grid Margin="0,0,0,28">
                             <TextBlock Text="ZONE 2" FontSize="30" FontWeight="Bold"
@@ -249,10 +260,12 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid>
+                        <!-- Columns size to their content so a long value keeps its full
+                             width instead of overflowing a fixed half-card column. -->
+                        <Grid HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -291,6 +304,7 @@
 
                         </Grid>
                     </StackPanel>
+                    </Viewbox>
                 </Border>
             </Grid>
 
@@ -317,7 +331,7 @@
                                    HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
                         <TextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource DisplayTextBox}" Foreground ="Green"
-                                 Text="{Binding DataStore.Zone1Setpoint, StringFormat={}{0:F1}, Mode=OneWay}" Width="100"/>
+                                 Text="{Binding DataStore.Zone1Setpoint, StringFormat={}{0:F1}, Mode=OneWay}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource UnitLabelPV}" HorizontalAlignment="Left" >
                             <Run Text="&#x00B0;C"/>
